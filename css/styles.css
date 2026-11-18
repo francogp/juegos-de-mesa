@@ -296,39 +296,13 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.db-source-group {
-  display: flex;
-  align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-}
-
-.db-source-label {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-muted);
 }
 
 .db-source-tabs .tab-btn {
   padding: 7px 13px;
   font-size: 0.85rem;
-}
-
-.db-mode-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 11px;
-  border-radius: var(--radius-pill);
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  font-weight: 600;
 }
 
 /* Navegación principal (Pestañas segmentadas) */

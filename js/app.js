@@ -220,7 +220,6 @@
     document.getElementById('officialCountBadge').textContent = String(state.baseGames.length);
     document.getElementById('customCountBadge').textContent = String(state.customGames.length);
 
-    document.getElementById('officialReadonlyBadge').hidden = !isOfficial;
     document.getElementById('openAddGameBtn').hidden = isOfficial;
 
     document.getElementById('collectionTabCount').textContent = String(state.games.length);

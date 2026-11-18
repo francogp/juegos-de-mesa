@@ -1,11 +1,11 @@
-const CACHE_NAME = 'ludoteca-cache-v7';
+const CACHE_NAME = 'ludoteca-cache-v8';
 const PRECACHE_URLS = [
   './',
   './index.html',
-  './css/styles.css?v=7',
-  './js/default-games.js?v=7',
-  './js/storage.js?v=7',
-  './js/app.js?v=7',
+  './css/styles.css?v=8',
+  './js/default-games.js?v=8',
+  './js/storage.js?v=8',
+  './js/app.js?v=8',
   './data/games.json',
   './manifest.webmanifest',
   './assets/favicon.svg',

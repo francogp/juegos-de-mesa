@@ -42,7 +42,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="./css/styles.css?v=7">
+  <link rel="stylesheet" href="./css/styles.css?v=8">
 </head>
 
 <body>
@@ -110,21 +110,16 @@
 
     <!-- Selector de Base de Datos (Oficial vs Personalizada) -->
     <div class="db-source-bar" role="region" aria-label="Base de datos activa">
-      <div class="db-source-group">
-        <span class="db-source-label">Base de datos:</span>
-        <div class="segmented-tabs db-source-tabs" role="group" aria-label="Seleccionar colección">
-          <button type="button" id="sourceBtnOfficial" class="tab-btn" aria-pressed="true">
-            <span>🏛️ Base Oficial</span>
-            <span id="officialCountBadge" class="count-pill">0</span>
-          </button>
-          <button type="button" id="sourceBtnCustom" class="tab-btn" aria-pressed="false">
-            <span>✨ Mi Ludoteca</span>
-            <span id="customCountBadge" class="count-pill">0</span>
-          </button>
-        </div>
+      <div class="segmented-tabs db-source-tabs" role="group" aria-label="Seleccionar colección">
+        <button type="button" id="sourceBtnOfficial" class="tab-btn" aria-pressed="true">
+          <span>🏛️ Base Oficial</span>
+          <span id="officialCountBadge" class="count-pill">0</span>
+        </button>
+        <button type="button" id="sourceBtnCustom" class="tab-btn" aria-pressed="false">
+          <span>✨ Mi Ludoteca</span>
+          <span id="customCountBadge" class="count-pill">0</span>
+        </button>
       </div>
-
-      <span id="officialReadonlyBadge" class="db-mode-badge">🔒 Solo lectura</span>
     </div>
 
     <!-- Barra de navegación principal -->
@@ -565,9 +560,9 @@
   <!-- Región de notificaciones breves -->
   <div id="toastRegion" class="toast-region" aria-live="polite"></div>
 
-  <script src="./js/default-games.js?v=7"></script>
-  <script src="./js/storage.js?v=7"></script>
-  <script src="./js/app.js?v=7"></script>
+  <script src="./js/default-games.js?v=8"></script>
+  <script src="./js/storage.js?v=8"></script>
+  <script src="./js/app.js?v=8"></script>
 </body>
 
 </html>

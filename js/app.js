@@ -237,6 +237,25 @@
     emptyEl.hidden = true;
     winnerEl.hidden = false;
 
+    const links = buildExternalLinks(game);
+
+    // Mostrar portada oficial de la caja si está disponible
+    const coverFrame = document.getElementById('winnerCoverFrame');
+    const coverImg = document.getElementById('winnerCoverImg');
+    const coverLink = document.getElementById('winnerCoverLink');
+    if (game.coverUrl) {
+      coverFrame.hidden = false;
+      coverLink.href = links.bgg;
+      coverImg.alt = `Caja oficial de ${game.esName}`;
+      coverImg.onerror = () => {
+        coverFrame.hidden = true;
+      };
+      coverImg.src = game.coverUrl;
+    } else {
+      coverFrame.hidden = true;
+      coverImg.removeAttribute('src');
+    }
+
     // Rellenar datos del ganador
     document.getElementById('winnerTitle').textContent = game.esName;
     const sub = document.getElementById('winnerSubtitle');
@@ -266,7 +285,6 @@
       tagsContainer.appendChild(span);
     });
 
-    const links = buildExternalLinks(game);
     document.getElementById('winnerLinkBgg').href = links.bgg;
     document.getElementById('winnerLinkImages').href = links.images;
     document.getElementById('winnerLinkYoutube').href = links.youtube;
@@ -330,12 +348,19 @@
     renderStage();
 
     const rollingTitleEl = document.getElementById('rollingCandidateTitle');
+    const rollingCoverEl = document.getElementById('rollingCandidateCover');
     let ticks = 0;
     const totalTicks = 9;
 
     const timer = setInterval(() => {
       const sample = allCompatible[Math.floor(Math.random() * allCompatible.length)];
       rollingTitleEl.textContent = sample.esName;
+      if (sample.coverUrl) {
+        rollingCoverEl.src = sample.coverUrl;
+        rollingCoverEl.hidden = false;
+      } else {
+        rollingCoverEl.hidden = true;
+      }
       ticks += 1;
       if (ticks >= totalTicks) {
         clearInterval(timer);
@@ -432,9 +457,12 @@
       const topDiv = document.createElement('div');
       topDiv.innerHTML = `
         <div class="game-card-header">
-          <div>
-            <h3 class="game-card-title"></h3>
-            ${showOrig ? '<p class="game-card-orig"></p>' : ''}
+          <div class="game-card-brand">
+            ${game.coverUrl ? '<img class="game-card-thumb" alt="" loading="lazy" referrerpolicy="no-referrer">' : ''}
+            <div>
+              <h3 class="game-card-title"></h3>
+              ${showOrig ? '<p class="game-card-orig"></p>' : ''}
+            </div>
           </div>
           <span class="complexity-badge complexity-${game.complexity}">${COMPLEXITY_LABELS[game.complexity] || 'Medio'}</span>
         </div>
@@ -446,6 +474,12 @@
         <p class="game-card-desc"></p>
       `;
 
+      if (game.coverUrl) {
+        const thumb = topDiv.querySelector('.game-card-thumb');
+        thumb.src = game.coverUrl;
+        thumb.alt = `Portada de ${game.esName}`;
+        thumb.onerror = () => thumb.remove();
+      }
       topDiv.querySelector('.game-card-title').textContent = game.esName;
       if (showOrig) {
         topDiv.querySelector('.game-card-orig').textContent = game.originalName;
@@ -544,6 +578,7 @@
       document.getElementById('formMaxTime').value = gameToEdit.maxTime;
       document.getElementById('formComplexity').value = gameToEdit.complexity;
       document.getElementById('formMode').value = gameToEdit.mode;
+      document.getElementById('formCoverUrl').value = gameToEdit.coverUrl || '';
       document.getElementById('formTags').value = (gameToEdit.tags || []).join(', ');
       document.getElementById('formDescription').value = gameToEdit.description || '';
       deleteBtn.hidden = false;
@@ -555,6 +590,7 @@
       document.getElementById('formMaxTime').value = 60;
       document.getElementById('formComplexity').value = 'medio';
       document.getElementById('formMode').value = 'competitivo';
+      document.getElementById('formCoverUrl').value = '';
       deleteBtn.hidden = true;
     }
 
@@ -564,6 +600,7 @@
   function handleSaveGameForm(event) {
     event.preventDefault();
     const id = document.getElementById('formGameId').value.trim();
+    const existing = id ? state.games.find((g) => g.id === id) : null;
     const esName = document.getElementById('formEsName').value.trim();
     const originalName = document.getElementById('formOrigName').value.trim() || esName;
     const min = parseInt(document.getElementById('formMinPlayers').value, 10) || 1;
@@ -572,6 +609,7 @@
     const maxTime = parseInt(document.getElementById('formMaxTime').value, 10) || minTime;
     const complexity = document.getElementById('formComplexity').value;
     const mode = document.getElementById('formMode').value;
+    const coverUrl = document.getElementById('formCoverUrl').value.trim();
     const tags = document.getElementById('formTags').value;
     const description = document.getElementById('formDescription').value.trim();
 
@@ -582,6 +620,8 @@
         id: id || undefined,
         esName,
         originalName,
+        bggUrl: existing && existing.bggUrl ? existing.bggUrl : undefined,
+        coverUrl: coverUrl || undefined,
         min: Math.min(min, max),
         max: Math.max(min, max),
         minTime: Math.min(minTime, maxTime),

@@ -37,12 +37,14 @@
           .filter(Boolean);
 
     const bggUrl = raw.bggUrl ? String(raw.bggUrl).trim() : '';
+    const coverUrl = raw.coverUrl ? String(raw.coverUrl).trim() : '';
 
     return {
       id: String(raw.id || slugify(esName)),
       esName,
       originalName,
       ...(bggUrl ? { bggUrl } : {}),
+      ...(coverUrl ? { coverUrl } : {}),
       min,
       max,
       minTime,
@@ -198,6 +200,7 @@
       originalName: g.originalName,
       esName: g.esName,
       ...(g.bggUrl ? { bggUrl: g.bggUrl } : {}),
+      ...(g.coverUrl ? { coverUrl: g.coverUrl } : {}),
       min: g.min,
       max: g.max,
       minTime: g.minTime,

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ludoteca-cache-v2';
+const CACHE_NAME = 'ludoteca-cache-v3';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -16,7 +16,9 @@ const PRECACHE_URLS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll(PRECACHE_URLS.map((url) => new Request(url, { cache: 'reload' })))
+    )
   );
   self.skipWaiting();
 });

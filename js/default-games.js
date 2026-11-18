@@ -15,7 +15,9 @@ window.DEFAULT_GAMES = [
       "Cartas",
       "Estrategia"
     ],
-    "description": "Guía tu civilización desde la Antigüedad hasta la era moderna equilibrando cultura, ciencia, economía y poder militar."
+    "description": "Guía tu civilización desde la Antigüedad hasta la era moderna equilibrando cultura, ciencia, economía y poder militar.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/182028/through-the-ages-a-new-story-of-civilization",
+    "coverUrl": "./assets/covers/a-traves-de-las-edades.webp"
   },
   {
     "id": "brass",
@@ -32,7 +34,9 @@ window.DEFAULT_GAMES = [
       "Economía",
       "Redes"
     ],
-    "description": "Construye industrias, canales y ferrocarriles durante la Revolución Industrial aprovechando el mercado y las redes rivales."
+    "description": "Construye industrias, canales y ferrocarriles durante la Revolución Industrial aprovechando el mercado y las redes rivales.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/224517/brass-birmingham",
+    "coverUrl": "./assets/covers/brass.webp"
   },
   {
     "id": "carcassonne",
@@ -49,7 +53,9 @@ window.DEFAULT_GAMES = [
       "Familiar",
       "Territorio"
     ],
-    "description": "Coloca losetas turno a turno para levantar ciudades amuralladas, caminos y monasterios mientras despliegas tus seguidores."
+    "description": "Coloca losetas turno a turno para levantar ciudades amuralladas, caminos y monasterios mientras despliegas tus seguidores.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/822/carcassonne",
+    "coverUrl": "./assets/covers/carcassonne.webp"
   },
   {
     "id": "catan",
@@ -66,7 +72,9 @@ window.DEFAULT_GAMES = [
       "Negociación",
       "Clásico"
     ],
-    "description": "Comercia recursos con la mesa y expande rutas, pueblos y ciudades para dominar la isla de Catán."
+    "description": "Comercia recursos con la mesa y expande rutas, pueblos y ciudades para dominar la isla de Catán.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/13/catan",
+    "coverUrl": "./assets/covers/catan.webp"
   },
   {
     "id": "catan-viajeros-de-las-estrellas",
@@ -83,7 +91,9 @@ window.DEFAULT_GAMES = [
       "Comercio",
       "Espacio"
     ],
-    "description": "Propulsa tu nave nodriza por el cosmos para fundar colonias, negociar con civilizaciones alienígenas y enfrentar piratas."
+    "description": "Propulsa tu nave nodriza por el cosmos para fundar colonias, negociar con civilizaciones alienígenas y enfrentar piratas.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/282853/catan-starfarers",
+    "coverUrl": "./assets/covers/catan-viajeros-de-las-estrellas.webp"
   },
   {
     "id": "clank-en-el-espacio",
@@ -100,7 +110,9 @@ window.DEFAULT_GAMES = [
       "Aventura",
       "Espacio"
     ],
-    "description": "Infíltrate en la nave de Lord Eradikus armando tu mazo sin hacer ruido, roba un artefacto y escapa con vida."
+    "description": "Infíltrate en la nave de Lord Eradikus armando tu mazo sin hacer ruido, roba un artefacto y escapa con vida.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/233371/clank-in-space-a-deck-building-adventure",
+    "coverUrl": "./assets/covers/clank-en-el-espacio.webp"
   },
   {
     "id": "eclipse",
@@ -117,7 +129,9 @@ window.DEFAULT_GAMES = [
       "Espacio",
       "Estrategia"
     ],
-    "description": "Explora sectores galácticos, investiga tecnologías, personaliza tus naves con planos modulares y disputa el control del espacio."
+    "description": "Explora sectores galácticos, investiga tecnologías, personaliza tus naves con planos modulares y disputa el control del espacio.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/246900/eclipse-second-dawn-for-the-galaxy",
+    "coverUrl": "./assets/covers/eclipse.webp"
   },
   {
     "id": "epochs-el-camino-de-las-culturas",
@@ -136,7 +150,8 @@ window.DEFAULT_GAMES = [
       "Asimétrico",
       "Estrategia"
     ],
-    "description": "Lidera una civilización asimétrica a través de tres épocas históricas introduciendo inventos, erigiendo maravillas, trazando rutas comerciales o conquistando territorios."
+    "description": "Lidera una civilización asimétrica a través de tres épocas históricas introduciendo inventos, erigiendo maravillas, trazando rutas comerciales o conquistando territorios.",
+    "coverUrl": "./assets/covers/epochs-el-camino-de-las-culturas.webp"
   },
   {
     "id": "evacuacion",
@@ -153,7 +168,9 @@ window.DEFAULT_GAMES = [
       "Gestión",
       "Espacio"
     ],
-    "description": "Desmantela la economía de un planeta agonizante y traslada población y fábricas a un nuevo mundo antes de que sea tarde."
+    "description": "Desmantela la economía de un planeta agonizante y traslada población y fábricas a un nuevo mundo antes de que sea tarde.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/382843/evacuation",
+    "coverUrl": "./assets/covers/evacuacion.webp"
   },
   {
     "id": "galaxy-trucker",
@@ -170,7 +187,9 @@ window.DEFAULT_GAMES = [
       "Losetas",
       "Espacio"
     ],
-    "description": "Ensambla una nave espacial a contrarreloj con piezas de chatarra y reza para que resista meteoritos y contrabandistas."
+    "description": "Ensambla una nave espacial a contrarreloj con piezas de chatarra y reza para que resista meteoritos y contrabandistas.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/31481/galaxy-trucker",
+    "coverUrl": "./assets/covers/galaxy-trucker.webp"
   },
   {
     "id": "gold-west",
@@ -187,7 +206,9 @@ window.DEFAULT_GAMES = [
       "Recursos",
       "Territorio"
     ],
-    "description": "Gestiona tu caravana de suministros estilo mancala para extraer metales preciosos y levantar campamentos en la fiebre del oro."
+    "description": "Gestiona tu caravana de suministros estilo mancala para extraer metales preciosos y levantar campamentos en la fiebre del oro.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/154086/gold-west",
+    "coverUrl": "./assets/covers/gold-west.webp"
   },
   {
     "id": "heat",
@@ -204,7 +225,9 @@ window.DEFAULT_GAMES = [
       "Cartas",
       "Tensión"
     ],
-    "description": "Pisa a fondo en carreras de los años 60 administrando cambios de marcha, rebufo y el calor del motor en cada curva."
+    "description": "Pisa a fondo en carreras de los años 60 administrando cambios de marcha, rebufo y el calor del motor en cada curva.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/366013/heat-pedal-to-the-metal",
+    "coverUrl": "./assets/covers/heat.webp"
   },
   {
     "id": "ishtar",
@@ -221,7 +244,9 @@ window.DEFAULT_GAMES = [
       "Territorio",
       "Abstracto"
     ],
-    "description": "Transforma el árido desierto en los jardines colgantes de Babilonia conectando fuentes, parterres florales y gemas."
+    "description": "Transforma el árido desierto en los jardines colgantes de Babilonia conectando fuentes, parterres florales y gemas.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/271088/ishtar-gardens-of-babylon",
+    "coverUrl": "./assets/covers/ishtar.webp"
   },
   {
     "id": "la-catedral-roja",
@@ -238,7 +263,9 @@ window.DEFAULT_GAMES = [
       "Dados",
       "Recursos"
     ],
-    "description": "Mueve dados por el rondel del mercado para reunir materiales y construir las torres de la Catedral de San Basilio."
+    "description": "Mueve dados por el rondel del mercado para reunir materiales y construir las torres de la Catedral de San Basilio.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/227224/the-red-cathedral",
+    "coverUrl": "./assets/covers/la-catedral-roja.webp"
   },
   {
     "id": "la-marcha-de-las-hormigas",
@@ -255,7 +282,9 @@ window.DEFAULT_GAMES = [
       "Evolución",
       "Territorio"
     ],
-    "description": "Expande tu hormiguero, evoluciona mutaciones para tu colonia y compite por dominar la pradera antes del invierno."
+    "description": "Expande tu hormiguero, evoluciona mutaciones para tu colonia y compite por dominar la pradera antes del invierno.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/416079/march-of-the-ants-evolved-edition",
+    "coverUrl": "./assets/covers/la-marcha-de-las-hormigas.webp"
   },
   {
     "id": "little-town",
@@ -272,7 +301,9 @@ window.DEFAULT_GAMES = [
       "Familiar",
       "Construcción"
     ],
-    "description": "Envía trabajadores al valle para recolectar recursos circundantes y levantar edificios que toda la mesa puede activar."
+    "description": "Envía trabajadores al valle para recolectar recursos circundantes y levantar edificios que toda la mesa puede activar.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/241266/little-town",
+    "coverUrl": "./assets/covers/little-town.webp"
   },
   {
     "id": "munchkin",
@@ -289,7 +320,9 @@ window.DEFAULT_GAMES = [
       "Party",
       "Negociación"
     ],
-    "description": "Patea puertas, derrota monstruos delirantes, saquea tesoros y traiciona a tus amigos en la carrera por llegar al nivel 10."
+    "description": "Patea puertas, derrota monstruos delirantes, saquea tesoros y traiciona a tus amigos en la carrera por llegar al nivel 10.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/1927/munchkin",
+    "coverUrl": "./assets/covers/munchkin.webp"
   },
   {
     "id": "pandemia",
@@ -306,7 +339,9 @@ window.DEFAULT_GAMES = [
       "Estrategia",
       "Clásico"
     ],
-    "description": "Coordina un equipo de especialistas alrededor del planeta para contener brotes y descubrir las cuatro curas a tiempo."
+    "description": "Coordina un equipo de especialistas alrededor del planeta para contener brotes y descubrir las cuatro curas a tiempo.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/30549/pandemic",
+    "coverUrl": "./assets/covers/pandemia.webp"
   },
   {
     "id": "pequenos-grandes-crimenes",
@@ -323,7 +358,9 @@ window.DEFAULT_GAMES = [
       "Misterio",
       "Compacto"
     ],
-    "description": "Recorre la ciudad como detective descifrando pruebas forenses, coartadas y sospechosos en menos de 48 horas."
+    "description": "Recorre la ciudad como detective descifrando pruebas forenses, coartadas y sospechosos en menos de 48 horas.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/374039/tiny-epic-crimes",
+    "coverUrl": "./assets/covers/pequenos-grandes-crimenes.webp"
   },
   {
     "id": "pequenos-grandes-dinosaurios",
@@ -340,7 +377,9 @@ window.DEFAULT_GAMES = [
       "Gestión",
       "Compacto"
     ],
-    "description": "Administra rancheros, recintos vallados e investigación genética para criar dinosaurios sin que escapen."
+    "description": "Administra rancheros, recintos vallados e investigación genética para criar dinosaurios sin que escapen.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/291508/tiny-epic-dinosaurs",
+    "coverUrl": "./assets/covers/pequenos-grandes-dinosaurios.webp"
   },
   {
     "id": "pequenos-grandes-galaxias",
@@ -357,7 +396,9 @@ window.DEFAULT_GAMES = [
       "Espacio",
       "Compacto"
     ],
-    "description": "Lanza dados de comando para colonizar planetas lejanos y sigue las acciones de tus rivales fuera de turno."
+    "description": "Lanza dados de comando para colonizar planetas lejanos y sigue las acciones de tus rivales fuera de turno.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/163967/tiny-epic-galaxies",
+    "coverUrl": "./assets/covers/pequenos-grandes-galaxias.webp"
   },
   {
     "id": "pequenos-grandes-mazmorras",
@@ -374,7 +415,9 @@ window.DEFAULT_GAMES = [
       "Mazmorras",
       "Compacto"
     ],
-    "description": "Explora una mazmorra modular con héroes fantásticos, esquiva trampas, reúne botín legendario y vence al jefe final."
+    "description": "Explora una mazmorra modular con héroes fantásticos, esquiva trampas, reúne botín legendario y vence al jefe final.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/331787/tiny-epic-dungeons",
+    "coverUrl": "./assets/covers/pequenos-grandes-mazmorras.webp"
   },
   {
     "id": "pequenos-grandes-mechs",
@@ -391,7 +434,9 @@ window.DEFAULT_GAMES = [
       "Combate",
       "Compacto"
     ],
-    "description": "Programa movimientos en secreto, despliega torretas y pilota armaduras mecanizadas en una arena televisada."
+    "description": "Programa movimientos en secreto, despliega torretas y pilota armaduras mecanizadas en una arena televisada.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/257283/tiny-epic-mechs",
+    "coverUrl": "./assets/covers/pequenos-grandes-mechs.webp"
   },
   {
     "id": "pequenos-grandes-piratas",
@@ -408,7 +453,9 @@ window.DEFAULT_GAMES = [
       "Rondel",
       "Compacto"
     ],
-    "description": "Navega aguas tormentosas, recluta tripulación, saquea galeones mercantes y sé el primero en enterrar tres tesoros."
+    "description": "Navega aguas tormentosas, recluta tripulación, saquea galeones mercantes y sé el primero en enterrar tres tesoros.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/309430/tiny-epic-pirates",
+    "coverUrl": "./assets/covers/pequenos-grandes-piratas.webp"
   },
   {
     "id": "pequenos-grandes-vikingos",
@@ -425,7 +472,9 @@ window.DEFAULT_GAMES = [
       "Territorio",
       "Compacto"
     ],
-    "description": "Lidera tu clan en tres eras seleccionando cartas, erigiendo templos y conquistando islas en honor a los dioses nórdicos."
+    "description": "Lidera tu clan en tres eras seleccionando cartas, erigiendo templos y conquistando islas en honor a los dioses nórdicos.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/360896/tiny-epic-vikings",
+    "coverUrl": "./assets/covers/pequenos-grandes-vikingos.webp"
   },
   {
     "id": "pequenos-grandes-zombies",
@@ -442,7 +491,9 @@ window.DEFAULT_GAMES = [
       "Acción",
       "Compacto"
     ],
-    "description": "Sobrevive al apocalipsis en un centro comercial cumpliendo tres objetivos dinámicos en modo cooperativo o competitivo."
+    "description": "Sobrevive al apocalipsis en un centro comercial cumpliendo tres objetivos dinámicos en modo cooperativo o competitivo.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/244536/tiny-epic-zombies",
+    "coverUrl": "./assets/covers/pequenos-grandes-zombies.webp"
   },
   {
     "id": "pocimas-y-brebajes",
@@ -459,7 +510,9 @@ window.DEFAULT_GAMES = [
       "Familiar",
       "Bolsa"
     ],
-    "description": "Extrae ingredientes exóticos de tu bolsa para hervir la poción más valiosa sin pasarte y hacer estallar tu caldero."
+    "description": "Extrae ingredientes exóticos de tu bolsa para hervir la poción más valiosa sin pasarte y hacer estallar tu caldero.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/244521/quacks",
+    "coverUrl": "./assets/covers/pocimas-y-brebajes.webp"
   },
   {
     "id": "proyecto-gaia",
@@ -476,7 +529,9 @@ window.DEFAULT_GAMES = [
       "Espacio",
       "Asimétrico"
     ],
-    "description": "Comanda una de catorce facciones únicas para terraformar planetas, formar federaciones y avanzar en seis ramas científicas."
+    "description": "Comanda una de catorce facciones únicas para terraformar planetas, formar federaciones y avanzar en seis ramas científicas.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/220308/gaia-project",
+    "coverUrl": "./assets/covers/proyecto-gaia.webp"
   },
   {
     "id": "raccoon-tycoon",
@@ -493,7 +548,9 @@ window.DEFAULT_GAMES = [
       "Subastas",
       "Familiar"
     ],
-    "description": "Especula con materias primas en un mercado fluctuante, gana subastas ferroviarias y construye edificios en Astoria."
+    "description": "Especula con materias primas en un mercado fluctuante, gana subastas ferroviarias y construye edificios en Astoria.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/254386/raccoon-tycoon",
+    "coverUrl": "./assets/covers/raccoon-tycoon.webp"
   },
   {
     "id": "sand",
@@ -510,7 +567,9 @@ window.DEFAULT_GAMES = [
       "Rutas",
       "Recursos"
     ],
-    "description": "Cruza un desierto implacable a lomos de orugas gigantes transportando mercancías y devolviendo la vida a ruinas olvidadas."
+    "description": "Cruza un desierto implacable a lomos de orugas gigantes transportando mercancías y devolviendo la vida a ruinas olvidadas.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/402669/sand",
+    "coverUrl": "./assets/covers/sand.webp"
   },
   {
     "id": "teg",
@@ -527,7 +586,9 @@ window.DEFAULT_GAMES = [
       "Dados",
       "Clásico"
     ],
-    "description": "Clásico argentino de táctica y estrategia global: refuerza continentes, negocia treguas frágiles y cumple tu misión secreta."
+    "description": "Clásico argentino de táctica y estrategia global: refuerza continentes, negocia treguas frágiles y cumple tu misión secreta.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/22392/teg-plan-tactico-y-estrategico-de-la-guerra",
+    "coverUrl": "./assets/covers/teg.webp"
   },
   {
     "id": "zombicide",
@@ -544,6 +605,8 @@ window.DEFAULT_GAMES = [
       "Dados",
       "Acción"
     ],
-    "description": "Forma escuadrón con otros supervivientes, mejora tu arsenal y abre paso entre hordas crecientes de no muertos."
+    "description": "Forma escuadrón con otros supervivientes, mejora tu arsenal y abre paso entre hordas crecientes de no muertos.",
+    "bggUrl": "https://boardgamegeek.com/boardgame/113924/zombicide",
+    "coverUrl": "./assets/covers/zombicide.webp"
   }
 ];

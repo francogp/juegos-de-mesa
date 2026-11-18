@@ -249,11 +249,19 @@
             <!-- Estado barajando -->
             <div id="stageRolling" class="stage-rolling" hidden>
               <p class="rolling-kicker">Barajando opciones compatibles…</p>
+              <img id="rollingCandidateCover" class="rolling-cover" src="" alt="" referrerpolicy="no-referrer" hidden>
               <div id="rollingCandidateTitle" class="rolling-title">Ludoteca</div>
             </div>
 
             <!-- Juego ganador -->
             <div id="stageWinner" class="winner-view" hidden>
+              <div id="winnerCoverFrame" class="winner-cover-frame" hidden>
+                <a id="winnerCoverLink" href="#" target="_blank" rel="noopener noreferrer" class="winner-cover-link"
+                  title="Ver ficha oficial en BoardGameGeek">
+                  <img id="winnerCoverImg" class="winner-cover-img" src="" alt="" referrerpolicy="no-referrer">
+                </a>
+              </div>
+
               <div class="winner-top">
                 <div>
                   <p class="winner-kicker">Sugerencia para hoy</p>
@@ -465,6 +473,11 @@
               <option value="ambos">Cooperativo y Competitivo</option>
             </select>
           </div>
+        </div>
+
+        <div class="field-group">
+          <label for="formCoverUrl">URL de imagen de la caja (opcional, ej. enlace de BGG)</label>
+          <input type="text" id="formCoverUrl" class="text-input" placeholder="https://cf.geekdo-images.com/...">
         </div>
 
         <div class="field-group">

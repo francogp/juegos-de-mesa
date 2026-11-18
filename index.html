@@ -60,6 +60,22 @@
       </div>
 
       <div class="header-actions">
+        <button type="button" id="copyLinkBtn" class="icon-btn" title="Copiar enlace de la web al portapapeles">
+          <svg id="copyLinkIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+          <svg id="copyLinkCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display: none;">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <span id="copyLinkLabel">Compartir link</span>
+        </button>
+
         <button type="button" id="installPwaBtn" class="icon-btn" hidden title="Instalar aplicación en tu dispositivo">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" aria-hidden="true">
@@ -309,6 +325,9 @@
                 <a id="winnerLinkBgg" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
                   <span>Ficha en BGG ↗</span>
                 </a>
+                <button type="button" id="shareWinnerBtn" class="btn btn-secondary btn-sm" title="Copiar enlace directo a este juego">
+                  <span id="shareWinnerLabel">Copiar link del juego</span>
+                </button>
                 <a id="winnerLinkImages" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">
                   <span>Ver fotos ↗</span>
                 </a>

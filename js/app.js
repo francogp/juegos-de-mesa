@@ -93,6 +93,93 @@
     }, 3200);
   }
 
+  function getBaseAppUrl() {
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.hash = '';
+    return url.toString();
+  }
+
+  async function copyTextToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        // Usar respaldo con textarea si falla el permiso
+      }
+    }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.pointerEvents = 'none';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+
+  let copyBtnResetTimer = null;
+  async function handleCopyAppLink() {
+    const shareUrl = getBaseAppUrl();
+    const ok = await copyTextToClipboard(shareUrl);
+    if (!ok) {
+      showToast('No se pudo copiar automáticamente: ' + shareUrl);
+      return;
+    }
+
+    const btn = document.getElementById('copyLinkBtn');
+    const icon = document.getElementById('copyLinkIcon');
+    const check = document.getElementById('copyLinkCheck');
+    const label = document.getElementById('copyLinkLabel');
+
+    btn.classList.add('is-copied');
+    icon.style.display = 'none';
+    check.style.display = 'block';
+    label.textContent = '¡Link copiado!';
+    showToast('Enlace de la web copiado al portapapeles.');
+
+    if (copyBtnResetTimer) clearTimeout(copyBtnResetTimer);
+    copyBtnResetTimer = setTimeout(() => {
+      btn.classList.remove('is-copied');
+      icon.style.display = 'block';
+      check.style.display = 'none';
+      label.textContent = 'Compartir link';
+    }, 2200);
+  }
+
+  let shareWinnerResetTimer = null;
+  async function handleShareWinnerGame() {
+    const game = state.picker.selectedGame;
+    if (!game) return;
+
+    const url = new URL(getBaseAppUrl());
+    url.searchParams.set('juego', game.id);
+    const shareUrl = url.toString();
+
+    const ok = await copyTextToClipboard(shareUrl);
+    if (!ok) {
+      showToast('No se pudo copiar automáticamente: ' + shareUrl);
+      return;
+    }
+
+    const label = document.getElementById('shareWinnerLabel');
+    label.textContent = '¡Link copiado!';
+    showToast(`Enlace de «${game.esName}» copiado al portapapeles.`);
+
+    if (shareWinnerResetTimer) clearTimeout(shareWinnerResetTimer);
+    shareWinnerResetTimer = setTimeout(() => {
+      label.textContent = 'Copiar link del juego';
+    }, 2200);
+  }
+
   // =========================================================================
   // TEMA CLARO / OSCURO
   // =========================================================================
@@ -720,6 +807,10 @@
   // EVENTOS Y REGISTRO PWA
   // =========================================================================
   function bindEvents() {
+    // Compartir enlaces al portapapeles
+    document.getElementById('copyLinkBtn').addEventListener('click', handleCopyAppLink);
+    document.getElementById('shareWinnerBtn').addEventListener('click', handleShareWinnerGame);
+
     // Tema
     document.getElementById('themeToggleBtn').addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme') || 'dark';
@@ -905,6 +996,14 @@
       state.baseGames,
       window.LudotecaStorage.readDelta()
     );
+
+    const sharedGameId = new URLSearchParams(window.location.search).get('juego');
+    if (sharedGameId) {
+      const sharedMatch = state.games.find((g) => g.id === sharedGameId);
+      if (sharedMatch) {
+        state.picker.selectedGame = sharedMatch;
+      }
+    }
 
     syncPlayerControls();
     refreshCollectionCounts();

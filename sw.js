@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ludoteca-cache-v3';
+const CACHE_NAME = 'ludoteca-cache-v4';
 const PRECACHE_URLS = [
   './',
   './index.html',

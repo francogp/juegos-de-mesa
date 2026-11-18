@@ -73,7 +73,9 @@
     const safeOrig = encodeURIComponent(game.originalName);
     const safeEs = encodeURIComponent(game.esName);
     return {
-      bgg: `https://boardgamegeek.com/geeksearch.php?action=search&objecttype=boardgame&q=${safeOrig}`,
+      bgg:
+        game.bggUrl ||
+        `https://boardgamegeek.com/geeksearch.php?action=search&objecttype=boardgame&q=${safeOrig}`,
       images: `https://www.google.com/search?tbm=isch&q=${safeOrig}%20board%20game`,
       youtube: `https://www.youtube.com/results?search_query=como+jugar+${safeEs}+juego+de+mesa`
     };

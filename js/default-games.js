@@ -120,6 +120,25 @@ window.DEFAULT_GAMES = [
     "description": "Explora sectores galácticos, investiga tecnologías, personaliza tus naves con planos modulares y disputa el control del espacio."
   },
   {
+    "id": "epochs-el-camino-de-las-culturas",
+    "originalName": "Epochs: Course of Cultures",
+    "esName": "Epochs: El Camino de las Culturas",
+    "bggUrl": "https://boardgamegeek.com/boardgame/400817/epochs-course-of-cultures",
+    "min": 2,
+    "max": 4,
+    "minTime": 120,
+    "maxTime": 180,
+    "complexity": "experto",
+    "mode": "competitivo",
+    "tags": [
+      "4X",
+      "Civilización",
+      "Asimétrico",
+      "Estrategia"
+    ],
+    "description": "Lidera una civilización asimétrica a través de tres épocas históricas introduciendo inventos, erigiendo maravillas, trazando rutas comerciales o conquistando territorios."
+  },
+  {
     "id": "evacuacion",
     "originalName": "Evacuation",
     "esName": "Evacuación",

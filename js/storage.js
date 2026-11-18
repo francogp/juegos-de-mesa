@@ -36,10 +36,13 @@
           .map((t) => t.trim())
           .filter(Boolean);
 
+    const bggUrl = raw.bggUrl ? String(raw.bggUrl).trim() : '';
+
     return {
       id: String(raw.id || slugify(esName)),
       esName,
       originalName,
+      ...(bggUrl ? { bggUrl } : {}),
       min,
       max,
       minTime,
@@ -194,6 +197,7 @@
       id: g.id,
       originalName: g.originalName,
       esName: g.esName,
+      ...(g.bggUrl ? { bggUrl: g.bggUrl } : {}),
       min: g.min,
       max: g.max,
       minTime: g.minTime,

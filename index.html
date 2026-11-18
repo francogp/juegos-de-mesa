@@ -42,7 +42,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="./css/styles.css?v=6">
+  <link rel="stylesheet" href="./css/styles.css?v=7">
 </head>
 
 <body>
@@ -108,6 +108,25 @@
       </div>
     </header>
 
+    <!-- Selector de Base de Datos (Oficial vs Personalizada) -->
+    <div class="db-source-bar" role="region" aria-label="Base de datos activa">
+      <div class="db-source-group">
+        <span class="db-source-label">Base de datos:</span>
+        <div class="segmented-tabs db-source-tabs" role="group" aria-label="Seleccionar colección">
+          <button type="button" id="sourceBtnOfficial" class="tab-btn" aria-pressed="true">
+            <span>🏛️ Base Oficial</span>
+            <span id="officialCountBadge" class="count-pill">0</span>
+          </button>
+          <button type="button" id="sourceBtnCustom" class="tab-btn" aria-pressed="false">
+            <span>✨ Mi Ludoteca</span>
+            <span id="customCountBadge" class="count-pill">0</span>
+          </button>
+        </div>
+      </div>
+
+      <span id="officialReadonlyBadge" class="db-mode-badge">🔒 Solo lectura</span>
+    </div>
+
     <!-- Barra de navegación principal -->
     <nav class="nav-bar" aria-label="Vistas de la aplicación">
       <div class="segmented-tabs" role="tablist">
@@ -122,8 +141,8 @@
         </button>
       </div>
 
-      <button type="button" id="openAddGameBtn" class="icon-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      <button type="button" id="openAddGameBtn" class="btn btn-primary btn-sm" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
           stroke-linejoin="round" aria-hidden="true">
           <path d="M12 5v14" />
           <path d="M5 12h14" />
@@ -260,6 +279,24 @@
               <h3>¿Qué sale a la mesa hoy?</h3>
               <p id="stageEmptySummary">Selecciona cuántos jugadores son y presiona «Elegir juego al azar» para decidir
                 en segundos.</p>
+            </div>
+
+            <!-- Estado inicial cuando Mi Ludoteca está vacía -->
+            <div id="stageCustomOnboarding" class="stage-empty custom-onboarding" hidden>
+              <div class="stage-emblem" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M12 5v14" />
+                  <path d="M5 12h14" />
+                </svg>
+              </div>
+              <h3>Tu ludoteca personalizada está vacía</h3>
+              <p>Armá tu propia colección desde cero, importá tu archivo JSON o copiá los juegos de la Base Oficial como punto de partida editable.</p>
+              <div class="onboarding-actions">
+                <button type="button" id="onboardAddBtn" class="btn btn-primary btn-sm">+ Agregar primer juego</button>
+                <button type="button" id="onboardCopyOfficialBtn" class="btn btn-secondary btn-sm">📋 Copiar Base Oficial</button>
+                <button type="button" id="onboardImportBtn" class="btn btn-ghost btn-sm">📥 Importar JSON</button>
+              </div>
             </div>
 
             <!-- Estado barajando -->
@@ -402,18 +439,23 @@
               </select>
 
               <button type="button" id="exportJsonBtn" class="icon-btn"
-                title="Descargar colección completa como games.json">
+                title="Descargar colección activa en formato JSON">
                 <span>Exportar JSON</span>
               </button>
 
-              <button type="button" id="importJsonBtn" class="icon-btn" title="Importar archivo games.json">
+              <button type="button" id="importJsonBtn" class="icon-btn" hidden title="Importar archivo JSON en Mi Ludoteca">
                 <span>Importar JSON</span>
               </button>
               <input type="file" id="importJsonInput" accept="application/json,.json" hidden>
 
-              <button type="button" id="restoreDefaultCollectionBtn" class="icon-btn" hidden
-                title="Volver a los juegos originales del repositorio">
-                <span>↺ Restaurar original</span>
+              <button type="button" id="copyOfficialBtn" class="icon-btn" hidden
+                title="Copiar los juegos de la Base Oficial a Mi Ludoteca">
+                <span>📋 Copiar Base Oficial</span>
+              </button>
+
+              <button type="button" id="clearCustomBtn" class="icon-btn btn-danger-subtle" hidden
+                title="Vaciar todos los juegos de Mi Ludoteca">
+                <span>Vaciar lista</span>
               </button>
             </div>
           </div>
@@ -426,7 +468,7 @@
 
   <!-- Pie de página -->
   <footer class="site-footer">
-    <span>Ludoteca · <strong id="footerTotalCount">0</strong> juegos en colección</span>
+    <span><span id="footerSourceLabel">Base Oficial</span> · <strong id="footerTotalCount">0</strong> juegos</span>
     <span>Funciona sin conexión · Listo para GitHub Pages</span>
   </footer>
 
@@ -523,9 +565,9 @@
   <!-- Región de notificaciones breves -->
   <div id="toastRegion" class="toast-region" aria-live="polite"></div>
 
-  <script src="./js/default-games.js?v=6"></script>
-  <script src="./js/storage.js?v=6"></script>
-  <script src="./js/app.js?v=6"></script>
+  <script src="./js/default-games.js?v=7"></script>
+  <script src="./js/storage.js?v=7"></script>
+  <script src="./js/app.js?v=7"></script>
 </body>
 
 </html>

@@ -1,23 +1,27 @@
 /**
  * Ludoteca · Capa de Datos y Persistencia
- * Combina data/games.json del repositorio con ediciones locales en localStorage
- * mediante un sistema de diferencias (upserts + eliminados) para no perder
- * futuras actualizaciones del repositorio en GitHub Pages.
+ * Gestiona dos bases de datos independientes:
+ * 1. Base Oficial (solo lectura, cargada desde data/games.json del repositorio)
+ * 2. Mi Ludoteca (base personalizada completa en localStorage, editable e importable/exportable)
  */
 (function () {
-  const STORAGE_KEY = 'ludoteca_custom_delta_v1';
+  const CUSTOM_DB_KEY = 'ludoteca_custom_games_v2';
+  const ACTIVE_SOURCE_KEY = 'ludoteca_active_source_v1';
+  const LEGACY_DELTA_KEY = 'ludoteca_custom_delta_v1';
   const THEME_KEY = 'ludoteca_theme_v1';
 
   function slugify(text) {
-    return String(text || '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '') || ('juego-' + Date.now());
+    return (
+      String(text || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') || 'juego-' + Date.now()
+    );
   }
 
-  function normalizeGame(raw) {
+  function normalizeGame(raw, { isCustom = false } = {}) {
     const esName = String(raw.esName || raw.originalName || '').trim();
     const originalName = String(raw.originalName || esName).trim();
     const min = Math.max(1, parseInt(raw.min, 10) || 1);
@@ -53,30 +57,14 @@
       mode,
       tags: tags.slice(0, 5),
       description: String(raw.description || '').trim(),
-      isCustom: Boolean(raw.isCustom)
+      isCustom: Boolean(isCustom)
     };
   }
 
-  function readDelta() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { upserts: {}, deletedIds: [] };
-      const parsed = JSON.parse(raw);
-      return {
-        upserts: parsed && typeof parsed.upserts === 'object' ? parsed.upserts : {},
-        deletedIds: Array.isArray(parsed && parsed.deletedIds) ? parsed.deletedIds : []
-      };
-    } catch {
-      return { upserts: {}, deletedIds: [] };
-    }
-  }
-
-  function writeDelta(delta) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(delta));
-    } catch (err) {
-      console.warn('No se pudo guardar en localStorage:', err);
-    }
+  function sortGames(list) {
+    return [...list].sort((a, b) =>
+      a.esName.localeCompare(b.esName, 'es', { sensitivity: 'base' })
+    );
   }
 
   async function fetchBaseGames() {
@@ -85,113 +73,136 @@
       if (!response.ok) throw new Error('HTTP ' + response.status);
       const data = await response.json();
       if (Array.isArray(data) && data.length > 0) {
-        return data.map((g) => normalizeGame({ ...g, isCustom: false }));
+        return sortGames(data.map((g) => normalizeGame(g, { isCustom: false })));
       }
     } catch {
-      // Fallback para protocolo file:// o sin red previa al Service Worker
+      // Respaldo para protocolo file:// o sin red previa al Service Worker
     }
     const fallback = Array.isArray(window.DEFAULT_GAMES) ? window.DEFAULT_GAMES : [];
-    return fallback.map((g) => normalizeGame({ ...g, isCustom: false }));
+    return sortGames(fallback.map((g) => normalizeGame(g, { isCustom: false })));
   }
 
-  function mergeGames(baseGames, delta) {
-    const deletedSet = new Set(delta.deletedIds || []);
-    const map = new Map();
+  function migrateLegacyDeltaIfPresent(baseGames) {
+    try {
+      const rawLegacy = localStorage.getItem(LEGACY_DELTA_KEY);
+      if (!rawLegacy) return null;
+      const parsed = JSON.parse(rawLegacy);
+      const upserts = parsed && typeof parsed.upserts === 'object' ? parsed.upserts : {};
+      const deletedIds = Array.isArray(parsed && parsed.deletedIds) ? parsed.deletedIds : [];
+      localStorage.removeItem(LEGACY_DELTA_KEY);
 
-    for (const base of baseGames) {
-      if (!deletedSet.has(base.id)) {
-        map.set(base.id, { ...base, isCustom: false });
+      if (Object.keys(upserts).length === 0 && deletedIds.length === 0) {
+        return null;
       }
-    }
 
-    for (const [id, customRaw] of Object.entries(delta.upserts || {})) {
-      if (deletedSet.has(id)) continue;
-      const hadBase = baseGames.some((b) => b.id === id);
-      map.set(id, {
-        ...normalizeGame(customRaw),
-        id,
-        isCustom: !hadBase,
-        isEdited: hadBase
-      });
+      const deletedSet = new Set(deletedIds);
+      const map = new Map();
+      for (const base of baseGames) {
+        if (!deletedSet.has(base.id)) {
+          map.set(base.id, normalizeGame(base, { isCustom: true }));
+        }
+      }
+      for (const [id, customRaw] of Object.entries(upserts)) {
+        if (deletedSet.has(id)) continue;
+        map.set(id, normalizeGame({ ...customRaw, id }, { isCustom: true }));
+      }
+      return sortGames(Array.from(map.values()));
+    } catch {
+      return null;
     }
-
-    return Array.from(map.values()).sort((a, b) =>
-      a.esName.localeCompare(b.esName, 'es', { sensitivity: 'base' })
-    );
   }
 
-  function hasCustomChanges() {
-    const delta = readDelta();
-    return Object.keys(delta.upserts).length > 0 || delta.deletedIds.length > 0;
+  function saveCustomGames(gamesArray) {
+    const clean = sortGames(gamesArray.map((g) => normalizeGame(g, { isCustom: true })));
+    try {
+      localStorage.setItem(CUSTOM_DB_KEY, JSON.stringify(clean));
+    } catch (err) {
+      console.warn('No se pudo guardar Mi Ludoteca en localStorage:', err);
+    }
+    return clean;
   }
 
-  function upsertGame(gameInput, baseGames) {
-    const delta = readDelta();
+  function loadCustomGames(baseGames = []) {
+    try {
+      const raw = localStorage.getItem(CUSTOM_DB_KEY);
+      if (raw === null) {
+        const migrated = migrateLegacyDeltaIfPresent(baseGames);
+        if (migrated) {
+          return saveCustomGames(migrated);
+        }
+        return [];
+      }
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return sortGames(
+        parsed
+          .filter((item) => item && (item.esName || item.originalName))
+          .map((item) => normalizeGame(item, { isCustom: true }))
+      );
+    } catch {
+      return [];
+    }
+  }
+
+  function upsertCustomGame(gameInput, currentCustomGames) {
+    const list = Array.isArray(currentCustomGames) ? [...currentCustomGames] : [];
     let id = gameInput.id ? String(gameInput.id) : slugify(gameInput.esName);
 
-    // Evitar colisiones al crear un juego nuevo
     if (!gameInput.id) {
-      const existingIds = new Set([
-        ...baseGames.map((g) => g.id),
-        ...Object.keys(delta.upserts)
-      ]);
+      const existingIds = new Set(list.map((g) => g.id));
       let suffix = 2;
       const baseId = id;
-      while (existingIds.has(id) && !delta.deletedIds.includes(id)) {
+      while (existingIds.has(id)) {
         id = `${baseId}-${suffix++}`;
       }
     }
 
-    delta.deletedIds = delta.deletedIds.filter((delId) => delId !== id);
-    delta.upserts[id] = normalizeGame({ ...gameInput, id });
-    writeDelta(delta);
-    return mergeGames(baseGames, delta);
-  }
-
-  function deleteGame(id, baseGames) {
-    const delta = readDelta();
-    delete delta.upserts[id];
-    if (baseGames.some((b) => b.id === id) && !delta.deletedIds.includes(id)) {
-      delta.deletedIds.push(id);
+    const normalized = normalizeGame({ ...gameInput, id }, { isCustom: true });
+    const idx = list.findIndex((g) => g.id === id);
+    if (idx >= 0) {
+      list[idx] = normalized;
+    } else {
+      list.push(normalized);
     }
-    writeDelta(delta);
-    return mergeGames(baseGames, delta);
+
+    return saveCustomGames(list);
   }
 
-  function resetCustomChanges(baseGames) {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // ignore
-    }
-    return mergeGames(baseGames, { upserts: {}, deletedIds: [] });
+  function deleteCustomGame(id, currentCustomGames) {
+    const filtered = (currentCustomGames || []).filter((g) => g.id !== id);
+    return saveCustomGames(filtered);
   }
 
-  function importGamesList(rawArray, baseGames) {
+  function clearCustomGames() {
+    return saveCustomGames([]);
+  }
+
+  function copyOfficialToCustom(baseGames) {
+    return saveCustomGames(baseGames.map((g) => ({ ...g })));
+  }
+
+  function importCustomGames(rawArray) {
     if (!Array.isArray(rawArray)) {
       throw new Error('El archivo JSON debe contener un listado (array) de juegos.');
     }
-    const imported = rawArray
-      .filter((item) => item && (item.esName || item.originalName))
-      .map((item) => normalizeGame(item));
-
-    if (imported.length === 0) {
+    const validItems = rawArray.filter((item) => item && (item.esName || item.originalName));
+    if (validItems.length === 0) {
       throw new Error('No se encontraron juegos válidos en el archivo importado.');
     }
 
-    const importedIds = new Set(imported.map((g) => g.id));
-    const deletedIds = baseGames
-      .filter((b) => !importedIds.has(b.id))
-      .map((b) => b.id);
+    const usedIds = new Set();
+    const imported = validItems.map((item) => {
+      let id = item.id ? String(item.id) : slugify(item.esName || item.originalName);
+      const baseId = id;
+      let suffix = 2;
+      while (usedIds.has(id)) {
+        id = `${baseId}-${suffix++}`;
+      }
+      usedIds.add(id);
+      return normalizeGame({ ...item, id }, { isCustom: true });
+    });
 
-    const upserts = {};
-    for (const game of imported) {
-      upserts[game.id] = game;
-    }
-
-    const delta = { upserts, deletedIds };
-    writeDelta(delta);
-    return mergeGames(baseGames, delta);
+    return saveCustomGames(imported);
   }
 
   function serializeForExport(games) {
@@ -213,6 +224,22 @@
     return JSON.stringify(clean, null, 2);
   }
 
+  function getActiveSource() {
+    try {
+      return localStorage.getItem(ACTIVE_SOURCE_KEY) === 'custom' ? 'custom' : 'official';
+    } catch {
+      return 'official';
+    }
+  }
+
+  function saveActiveSource(source) {
+    try {
+      localStorage.setItem(ACTIVE_SOURCE_KEY, source === 'custom' ? 'custom' : 'official');
+    } catch {
+      // ignore
+    }
+  }
+
   function getSavedTheme() {
     try {
       return localStorage.getItem(THEME_KEY) || 'dark';
@@ -231,14 +258,16 @@
 
   window.LudotecaStorage = {
     fetchBaseGames,
-    readDelta,
-    mergeGames,
-    hasCustomChanges,
-    upsertGame,
-    deleteGame,
-    resetCustomChanges,
-    importGamesList,
+    loadCustomGames,
+    saveCustomGames,
+    upsertCustomGame,
+    deleteCustomGame,
+    clearCustomGames,
+    copyOfficialToCustom,
+    importCustomGames,
     serializeForExport,
+    getActiveSource,
+    saveActiveSource,
     getSavedTheme,
     saveTheme
   };

@@ -1,9 +1,14 @@
 /**
  * Ludoteca · Lógica Principal de Interfaz, Sorteo, Catálogo y PWA
+ * Soporta dos bases independientes:
+ * - 'official': Base Oficial del repositorio (solo lectura)
+ * - 'custom': Mi Ludoteca personalizada en localStorage (lectura/escritura completa)
  */
 (function () {
   const state = {
     baseGames: [],
+    customGames: [],
+    activeSource: 'official', // 'official' | 'custom'
     games: [],
     activeTab: 'picker', // 'picker' | 'collection'
     picker: {
@@ -43,7 +48,6 @@
     ambos: 'Coop / Versus'
   };
 
-  // Utilidad para coincidencia de duración
   function matchesDuration(game, bucket) {
     if (!bucket || bucket === 'all') return true;
     const avg = (game.minTime + game.maxTime) / 2;
@@ -204,8 +208,42 @@
   }
 
   // =========================================================================
-  // NAVEGACIÓN ENTRE PESTAÑAS
+  // FUENTE DE DATOS (OFICIAL VS MI LUDOTECA) Y PESTAÑAS
   // =========================================================================
+  function syncSourceUI() {
+    const isOfficial = state.activeSource === 'official';
+    state.games = isOfficial ? state.baseGames : state.customGames;
+
+    document.getElementById('sourceBtnOfficial').setAttribute('aria-pressed', String(isOfficial));
+    document.getElementById('sourceBtnCustom').setAttribute('aria-pressed', String(!isOfficial));
+
+    document.getElementById('officialCountBadge').textContent = String(state.baseGames.length);
+    document.getElementById('customCountBadge').textContent = String(state.customGames.length);
+
+    document.getElementById('officialReadonlyBadge').hidden = !isOfficial;
+    document.getElementById('openAddGameBtn').hidden = isOfficial;
+
+    document.getElementById('collectionTabCount').textContent = String(state.games.length);
+    document.getElementById('footerSourceLabel').textContent = isOfficial
+      ? 'Base Oficial'
+      : 'Mi Ludoteca';
+    document.getElementById('footerTotalCount').textContent = String(state.games.length);
+  }
+
+  function switchDatabaseSource(source) {
+    const next = source === 'custom' ? 'custom' : 'official';
+    if (state.activeSource === next) return;
+
+    state.activeSource = next;
+    window.LudotecaStorage.saveActiveSource(next);
+    state.picker.discardedIds.clear();
+    state.picker.selectedGame = null;
+    setPickerError('');
+
+    refreshCollectionCounts();
+    renderStage();
+  }
+
   function switchTab(tabName) {
     state.activeTab = tabName === 'collection' ? 'collection' : 'picker';
     const tabPicker = document.getElementById('tabBtnPicker');
@@ -250,7 +288,8 @@
       input.value = val === null ? '' : String(val);
     }
 
-    hint.textContent = val === null ? 'Sin límite de jugadores' : `${val} ${val === 1 ? 'jugador' : 'jugadores'}`;
+    hint.textContent =
+      val === null ? 'Sin límite de jugadores' : `${val} ${val === 1 ? 'jugador' : 'jugadores'}`;
 
     document.querySelectorAll('[data-player-quick]').forEach((btn) => {
       const target = btn.getAttribute('data-player-quick');
@@ -262,14 +301,21 @@
   }
 
   function updatePickerPoolUI() {
-    const allCompatible = getMatchingPickerGames(false);
-    const available = getMatchingPickerGames(true);
-    const discardedCount = allCompatible.length - available.length;
-
     const statusText = document.getElementById('poolStatusText');
     const resetDiscardsBtn = document.getElementById('resetDiscardsBtn');
     const rollBtn = document.getElementById('rollGameBtn');
     const emptyDesc = document.getElementById('stageEmptySummary');
+
+    if (state.activeSource === 'custom' && state.games.length === 0) {
+      statusText.innerHTML = 'Tu ludoteca personalizada está vacía';
+      resetDiscardsBtn.hidden = true;
+      rollBtn.disabled = true;
+      return;
+    }
+
+    const allCompatible = getMatchingPickerGames(false);
+    const available = getMatchingPickerGames(true);
+    const discardedCount = allCompatible.length - available.length;
 
     if (allCompatible.length === 0) {
       statusText.innerHTML = '<strong>0</strong> juegos coinciden con estos filtros';
@@ -283,9 +329,10 @@
     rollBtn.disabled = allCompatible.length === 0 || state.picker.isRolling;
 
     if (emptyDesc) {
+      const label = state.activeSource === 'official' ? 'la Base Oficial' : 'Mi Ludoteca';
       emptyDesc.textContent =
         allCompatible.length > 0
-          ? `Hay ${allCompatible.length} opciones listas en la ludoteca para los criterios actuales.`
+          ? `Hay ${allCompatible.length} opciones listas en ${label} para los criterios actuales.`
           : 'Prueba ampliando la cantidad de jugadores, duración o complejidad.';
     }
   }
@@ -303,30 +350,33 @@
 
   function renderStage() {
     const emptyEl = document.getElementById('stageEmpty');
+    const onboardEl = document.getElementById('stageCustomOnboarding');
     const rollingEl = document.getElementById('stageRolling');
     const winnerEl = document.getElementById('stageWinner');
 
+    emptyEl.hidden = true;
+    onboardEl.hidden = true;
+    rollingEl.hidden = true;
+    winnerEl.hidden = true;
+
     if (state.picker.isRolling) {
-      emptyEl.hidden = true;
-      winnerEl.hidden = true;
       rollingEl.hidden = false;
       return;
     }
 
-    rollingEl.hidden = true;
     const game = state.picker.selectedGame;
     if (!game) {
-      emptyEl.hidden = false;
-      winnerEl.hidden = true;
+      if (state.activeSource === 'custom' && state.games.length === 0) {
+        onboardEl.hidden = false;
+      } else {
+        emptyEl.hidden = false;
+      }
       return;
     }
 
-    emptyEl.hidden = true;
     winnerEl.hidden = false;
-
     const links = buildExternalLinks(game);
 
-    // Mostrar portada oficial de la caja si está disponible
     const coverFrame = document.getElementById('winnerCoverFrame');
     const coverImg = document.getElementById('winnerCoverImg');
     const coverLink = document.getElementById('winnerCoverLink');
@@ -343,7 +393,6 @@
       coverImg.removeAttribute('src');
     }
 
-    // Rellenar datos del ganador
     document.getElementById('winnerTitle').textContent = game.esName;
     const sub = document.getElementById('winnerSubtitle');
     if (game.originalName && game.originalName.toLowerCase() !== game.esName.toLowerCase()) {
@@ -376,7 +425,10 @@
     document.getElementById('winnerLinkImages').href = links.images;
     document.getElementById('winnerLinkYoutube').href = links.youtube;
 
-    // Estado del botón "Elegir otro sin repetir"
+    // Mostrar "Copiar link del juego" solo si existe en la Base Oficial pública
+    const isInOfficial = state.baseGames.some((b) => b.id === game.id);
+    document.getElementById('shareWinnerBtn').hidden = !isInOfficial;
+
     const remainingOthers = getMatchingPickerGames(true).filter((g) => g.id !== game.id);
     const rerollInfo = document.getElementById('rerollRemainingInfo');
     const rerollBtn = document.getElementById('rerollSkipBtn');
@@ -414,7 +466,6 @@
 
     let pool = getMatchingPickerGames(true);
     if (pool.length === 0) {
-      // Reiniciar descartes automáticamente cuando se dio toda la vuelta
       state.picker.discardedIds.clear();
       pool = getMatchingPickerGames(true);
       showToast('Se reiniciaron los descartes para una nueva ronda.');
@@ -464,21 +515,18 @@
     const c = state.catalog;
     const q = c.query.trim().toLowerCase();
     const playersNum = parseInt(c.players, 10);
+    const hasPlayerFilter = !isNaN(playersNum) && playersNum >= 1;
 
     const filtered = state.games.filter((game) => {
       if (q) {
-        const haystack = [
-          game.esName,
-          game.originalName,
-          game.description,
-          ...(game.tags || [])
-        ]
-          .join(' ')
-          .toLowerCase();
-        if (!haystack.includes(q)) return false;
+        const inEs = game.esName.toLowerCase().includes(q);
+        const inOrig = game.originalName.toLowerCase().includes(q);
+        const inTags = (game.tags || []).some((t) => t.toLowerCase().includes(q));
+        const inDesc = (game.description || '').toLowerCase().includes(q);
+        if (!inEs && !inOrig && !inTags && !inDesc) return false;
       }
-      if (!isNaN(playersNum) && playersNum > 0) {
-        if (playersNum < game.min || playersNum > game.max) return false;
+      if (hasPlayerFilter && (playersNum < game.min || playersNum > game.max)) {
+        return false;
       }
       if (!matchesDuration(game, c.duration)) return false;
       if (c.complexity !== 'all' && game.complexity !== c.complexity) return false;
@@ -488,9 +536,9 @@
     filtered.sort((a, b) => {
       switch (c.sort) {
         case 'time-asc':
-          return (a.minTime + a.maxTime) - (b.minTime + b.maxTime);
+          return (a.minTime + a.maxTime) / 2 - (b.minTime + b.maxTime) / 2;
         case 'time-desc':
-          return (b.minTime + b.maxTime) - (a.minTime + a.maxTime);
+          return (b.minTime + b.maxTime) / 2 - (a.minTime + a.maxTime) / 2;
         case 'complexity-asc':
           return (COMPLEXITY_ORDER[a.complexity] || 2) - (COMPLEXITY_ORDER[b.complexity] || 2);
         case 'complexity-desc':
@@ -507,17 +555,47 @@
   function renderCatalog() {
     const grid = document.getElementById('catalogGrid');
     const summary = document.getElementById('catalogResultsSummary');
-    const resetBtn = document.getElementById('restoreDefaultCollectionBtn');
+    const isCustom = state.activeSource === 'custom';
 
-    const list = getFilteredCatalogGames();
-    summary.textContent =
-      list.length === state.games.length
-        ? `Mostrando los ${state.games.length} juegos de la colección`
-        : `Mostrando ${list.length} de ${state.games.length} juegos`;
-
-    resetBtn.hidden = !window.LudotecaStorage.hasCustomChanges();
+    document.getElementById('exportJsonBtn').hidden = state.games.length === 0;
+    document.getElementById('importJsonBtn').hidden = !isCustom;
+    document.getElementById('copyOfficialBtn').hidden = !isCustom;
+    document.getElementById('clearCustomBtn').hidden = !isCustom || state.customGames.length === 0;
 
     grid.innerHTML = '';
+
+    if (isCustom && state.games.length === 0) {
+      summary.textContent = 'Mi Ludoteca está vacía';
+      const emptyCustom = document.createElement('div');
+      emptyCustom.className = 'empty-catalog';
+      emptyCustom.innerHTML = `
+        <h3>Empezá a armar tu ludoteca personalizada</h3>
+        <p>Podés agregar tus juegos uno por uno, importar tu propio archivo JSON o copiar los ${state.baseGames.length} juegos de la Base Oficial para editarlos libremente.</p>
+        <div class="onboarding-actions">
+          <button type="button" class="btn btn-primary btn-sm" data-empty-action="add">+ Agregar primer juego</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-empty-action="copy">📋 Copiar Base Oficial (${state.baseGames.length})</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-empty-action="import">📥 Importar JSON</button>
+        </div>
+      `;
+      emptyCustom
+        .querySelector('[data-empty-action="add"]')
+        .addEventListener('click', () => openGameDialog(null));
+      emptyCustom
+        .querySelector('[data-empty-action="copy"]')
+        .addEventListener('click', handleCopyOfficialToCustom);
+      emptyCustom
+        .querySelector('[data-empty-action="import"]')
+        .addEventListener('click', () => document.getElementById('importJsonInput').click());
+      grid.appendChild(emptyCustom);
+      return;
+    }
+
+    const list = getFilteredCatalogGames();
+    const sourceLabel = isCustom ? 'Mi Ludoteca' : 'la Base Oficial';
+    summary.textContent =
+      list.length === state.games.length
+        ? `Mostrando los ${state.games.length} juegos de ${sourceLabel}`
+        : `Mostrando ${list.length} de ${state.games.length} juegos de ${sourceLabel}`;
 
     if (list.length === 0) {
       const empty = document.createElement('div');
@@ -610,15 +688,25 @@
       bggLink.target = '_blank';
       bggLink.rel = 'noopener noreferrer';
       bggLink.textContent = 'BGG ↗';
-
-      const editBtn = document.createElement('button');
-      editBtn.type = 'button';
-      editBtn.className = 'mini-btn';
-      editBtn.textContent = 'Editar';
-      editBtn.addEventListener('click', () => openGameDialog(game));
-
       miniLinks.appendChild(bggLink);
-      miniLinks.appendChild(editBtn);
+
+      // Solo permitir Editar y Quitar dentro de Mi Ludoteca personalizada
+      if (isCustom) {
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'mini-btn';
+        editBtn.textContent = 'Editar';
+        editBtn.addEventListener('click', () => openGameDialog(game));
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'mini-btn mini-btn-danger';
+        removeBtn.textContent = 'Quitar';
+        removeBtn.addEventListener('click', () => handleQuickRemoveCustomGame(game));
+
+        miniLinks.appendChild(editBtn);
+        miniLinks.appendChild(removeBtn);
+      }
 
       actionsRow.appendChild(selectBtn);
       actionsRow.appendChild(miniLinks);
@@ -633,8 +721,7 @@
   }
 
   function refreshCollectionCounts() {
-    document.getElementById('collectionTabCount').textContent = String(state.games.length);
-    document.getElementById('footerTotalCount').textContent = String(state.games.length);
+    syncSourceUI();
     updatePickerPoolUI();
     if (state.activeTab === 'collection') {
       renderCatalog();
@@ -642,9 +729,11 @@
   }
 
   // =========================================================================
-  // MODAL AGREGAR / EDITAR JUEGO
+  // MODAL AGREGAR / EDITAR JUEGO (SOLO MI LUDOTECA)
   // =========================================================================
   function openGameDialog(gameToEdit = null) {
+    if (state.activeSource !== 'custom') return;
+
     const dialog = document.getElementById('gameFormDialog');
     const title = document.getElementById('gameDialogTitle');
     const deleteBtn = document.getElementById('deleteGameBtn');
@@ -654,7 +743,7 @@
     document.getElementById('formGameId').value = gameToEdit ? gameToEdit.id : '';
 
     if (gameToEdit) {
-      title.textContent = 'Editar juego';
+      title.textContent = 'Editar juego de Mi Ludoteca';
       document.getElementById('formEsName').value = gameToEdit.esName;
       document.getElementById('formOrigName').value = gameToEdit.originalName;
       document.getElementById('formMinPlayers').value = gameToEdit.min;
@@ -668,7 +757,7 @@
       document.getElementById('formDescription').value = gameToEdit.description || '';
       deleteBtn.hidden = false;
     } else {
-      title.textContent = 'Agregar nuevo juego';
+      title.textContent = 'Agregar juego a Mi Ludoteca';
       document.getElementById('formMinPlayers').value = 2;
       document.getElementById('formMaxPlayers').value = 4;
       document.getElementById('formMinTime').value = 30;
@@ -684,8 +773,10 @@
 
   function handleSaveGameForm(event) {
     event.preventDefault();
+    if (state.activeSource !== 'custom') return;
+
     const id = document.getElementById('formGameId').value.trim();
-    const existing = id ? state.games.find((g) => g.id === id) : null;
+    const existing = id ? state.customGames.find((g) => g.id === id) : null;
     const esName = document.getElementById('formEsName').value.trim();
     const originalName = document.getElementById('formOrigName').value.trim() || esName;
     const min = parseInt(document.getElementById('formMinPlayers').value, 10) || 1;
@@ -700,7 +791,7 @@
 
     if (!esName) return;
 
-    state.games = window.LudotecaStorage.upsertGame(
+    state.customGames = window.LudotecaStorage.upsertCustomGame(
       {
         id: id || undefined,
         esName,
@@ -716,53 +807,66 @@
         tags,
         description
       },
-      state.baseGames
+      state.customGames
     );
 
+    refreshCollectionCounts();
     if (state.picker.selectedGame && id === state.picker.selectedGame.id) {
-      state.picker.selectedGame = state.games.find((g) => g.id === id) || null;
-      renderStage();
+      state.picker.selectedGame = state.customGames.find((g) => g.id === id) || null;
     }
+    renderStage();
 
     document.getElementById('gameFormDialog').close();
-    refreshCollectionCounts();
-    showToast(id ? `«${esName}» actualizado.` : `«${esName}» sumado a la ludoteca.`);
+    showToast(id ? `✓ «${esName}» actualizado.` : `✓ «${esName}» agregado a Mi Ludoteca.`);
   }
 
-  function handleDeleteCurrentGame() {
-    const id = document.getElementById('formGameId').value.trim();
-    if (!id) return;
-    const target = state.games.find((g) => g.id === id);
-    const name = target ? target.esName : 'este juego';
-    if (!window.confirm(`¿Quitar «${name}» de tu colección local?`)) return;
-
-    state.games = window.LudotecaStorage.deleteGame(id, state.baseGames);
+  function removeGameFromCustomById(id, name) {
+    state.customGames = window.LudotecaStorage.deleteCustomGame(id, state.customGames);
     state.picker.discardedIds.delete(id);
     if (state.picker.selectedGame && state.picker.selectedGame.id === id) {
       state.picker.selectedGame = null;
-      renderStage();
     }
+    refreshCollectionCounts();
+    renderStage();
+    showToast(`«${name}» quitado de Mi Ludoteca.`);
+  }
+
+  function handleQuickRemoveCustomGame(game) {
+    if (state.activeSource !== 'custom') return;
+    if (!window.confirm(`¿Quitar «${game.esName}» de Mi Ludoteca?`)) return;
+    removeGameFromCustomById(game.id, game.esName);
+  }
+
+  function handleDeleteCurrentGame() {
+    if (state.activeSource !== 'custom') return;
+    const id = document.getElementById('formGameId').value.trim();
+    if (!id) return;
+    const target = state.customGames.find((g) => g.id === id);
+    const name = target ? target.esName : 'este juego';
+    if (!window.confirm(`¿Quitar «${name}» de Mi Ludoteca?`)) return;
 
     document.getElementById('gameFormDialog').close();
-    refreshCollectionCounts();
-    showToast(`«${name}» eliminado.`);
+    removeGameFromCustomById(id, name);
   }
 
   // =========================================================================
-  // IMPORTAR / EXPORTAR / RESTAURAR JSON
+  // IMPORTAR / EXPORTAR / COPIAR OFICIAL / VACIAR MI LUDOTECA
   // =========================================================================
   function exportCollectionJson() {
+    if (state.games.length === 0) return;
     const content = window.LudotecaStorage.serializeForExport(state.games);
     const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
     const url = URL.createObjectURL(blob);
+    const filename =
+      state.activeSource === 'custom' ? 'mi-ludoteca.json' : 'ludoteca-oficial.json';
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'games.json';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    showToast('Archivo games.json descargado.');
+    showToast(`✓ Archivo ${filename} descargado.`);
   }
 
   function handleImportFile(event) {
@@ -772,10 +876,14 @@
     reader.onload = () => {
       try {
         const parsed = JSON.parse(String(reader.result));
-        state.games = window.LudotecaStorage.importGamesList(parsed, state.baseGames);
+        state.customGames = window.LudotecaStorage.importCustomGames(parsed);
+        state.activeSource = 'custom';
+        window.LudotecaStorage.saveActiveSource('custom');
         state.picker.discardedIds.clear();
+        state.picker.selectedGame = null;
         refreshCollectionCounts();
-        showToast(`Colección importada (${state.games.length} juegos).`);
+        renderStage();
+        showToast(`✓ ${state.customGames.length} juegos importados en Mi Ludoteca.`);
       } catch (err) {
         window.alert(err.message || 'No se pudo leer el archivo JSON.');
       } finally {
@@ -785,20 +893,40 @@
     reader.readAsText(file);
   }
 
-  function handleRestoreDefaults() {
+  function handleCopyOfficialToCustom() {
     if (
+      state.customGames.length > 0 &&
       !window.confirm(
-        '¿Restaurar la colección original del repositorio? Se descartarán los cambios guardados localmente en este navegador.'
+        `¿Reemplazar tu lista actual de Mi Ludoteca con una copia de los ${state.baseGames.length} juegos de la Base Oficial?`
       )
     ) {
       return;
     }
-    state.games = window.LudotecaStorage.resetCustomChanges(state.baseGames);
+    state.customGames = window.LudotecaStorage.copyOfficialToCustom(state.baseGames);
+    state.activeSource = 'custom';
+    window.LudotecaStorage.saveActiveSource('custom');
     state.picker.discardedIds.clear();
     state.picker.selectedGame = null;
-    renderStage();
     refreshCollectionCounts();
-    showToast('Colección original restaurada.');
+    renderStage();
+    showToast(`✓ Se copiaron ${state.customGames.length} juegos a Mi Ludoteca.`);
+  }
+
+  function handleClearCustomList() {
+    if (state.activeSource !== 'custom' || state.customGames.length === 0) return;
+    if (
+      !window.confirm(
+        '¿Vaciar todos los juegos de Mi Ludoteca? La Base Oficial no se verá afectada.'
+      )
+    ) {
+      return;
+    }
+    state.customGames = window.LudotecaStorage.clearCustomGames();
+    state.picker.discardedIds.clear();
+    state.picker.selectedGame = null;
+    refreshCollectionCounts();
+    renderStage();
+    showToast('Mi Ludoteca quedó vacía.');
   }
 
   // =========================================================================
@@ -815,12 +943,29 @@
       applyTheme(current === 'dark' ? 'light' : 'dark');
     });
 
-    // Pestañas
-    document.getElementById('tabBtnPicker').addEventListener('click', () => switchTab('picker'));
-    document.getElementById('tabBtnCollection').addEventListener('click', () => switchTab('collection'));
+    // Selector de Base de Datos (Oficial vs Mi Ludoteca)
+    document
+      .getElementById('sourceBtnOfficial')
+      .addEventListener('click', () => switchDatabaseSource('official'));
+    document
+      .getElementById('sourceBtnCustom')
+      .addEventListener('click', () => switchDatabaseSource('custom'));
 
-    // Botón rápido agregar juego en cabecera/nav
+    // Pestañas de vista
+    document.getElementById('tabBtnPicker').addEventListener('click', () => switchTab('picker'));
+    document
+      .getElementById('tabBtnCollection')
+      .addEventListener('click', () => switchTab('collection'));
+
+    // Botones de alta y onboarding de Mi Ludoteca
     document.getElementById('openAddGameBtn').addEventListener('click', () => openGameDialog(null));
+    document.getElementById('onboardAddBtn').addEventListener('click', () => openGameDialog(null));
+    document
+      .getElementById('onboardCopyOfficialBtn')
+      .addEventListener('click', handleCopyOfficialToCustom);
+    document.getElementById('onboardImportBtn').addEventListener('click', () => {
+      document.getElementById('importJsonInput').click();
+    });
 
     // Chips rápidos de jugadores
     document.querySelectorAll('[data-player-quick]').forEach((btn) => {
@@ -933,13 +1078,14 @@
       renderCatalog();
     });
 
-    // Exportar / Importar / Restaurar
+    // Exportar / Importar / Copiar Oficial / Vaciar Mi Ludoteca
     document.getElementById('exportJsonBtn').addEventListener('click', exportCollectionJson);
     document.getElementById('importJsonBtn').addEventListener('click', () => {
       document.getElementById('importJsonInput').click();
     });
     document.getElementById('importJsonInput').addEventListener('change', handleImportFile);
-    document.getElementById('restoreDefaultCollectionBtn').addEventListener('click', handleRestoreDefaults);
+    document.getElementById('copyOfficialBtn').addEventListener('click', handleCopyOfficialToCustom);
+    document.getElementById('clearCustomBtn').addEventListener('click', handleClearCustomList);
 
     // Diálogo CRUD
     const dialog = document.getElementById('gameFormDialog');
@@ -975,11 +1121,17 @@
   }
 
   function registerServiceWorker() {
-    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    if (
+      'serviceWorker' in navigator &&
+      (location.protocol === 'https:' ||
+        location.hostname === 'localhost' ||
+        location.hostname === '127.0.0.1')
+    ) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {
-          // Ignorar silenciosamente en entornos sin soporte SW
-        });
+        navigator.serviceWorker
+          .register('./sw.js')
+          .then((reg) => reg.update().catch(() => {}))
+          .catch(() => {});
       });
     }
   }
@@ -990,16 +1142,15 @@
     registerServiceWorker();
 
     state.baseGames = await window.LudotecaStorage.fetchBaseGames();
-    state.games = window.LudotecaStorage.mergeGames(
-      state.baseGames,
-      window.LudotecaStorage.readDelta()
-    );
+    state.customGames = window.LudotecaStorage.loadCustomGames(state.baseGames);
+    state.activeSource = window.LudotecaStorage.getActiveSource();
 
     const sharedGameId = new URLSearchParams(window.location.search).get('juego');
     if (sharedGameId) {
-      const sharedMatch = state.games.find((g) => g.id === sharedGameId);
-      if (sharedMatch) {
-        state.picker.selectedGame = sharedMatch;
+      const inOfficial = state.baseGames.find((g) => g.id === sharedGameId);
+      if (inOfficial) {
+        state.activeSource = 'official';
+        state.picker.selectedGame = inOfficial;
       }
     }
 

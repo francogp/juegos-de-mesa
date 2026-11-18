@@ -143,8 +143,8 @@
     btn.classList.add('is-copied');
     icon.style.display = 'none';
     check.style.display = 'block';
-    label.textContent = '¡Link copiado!';
-    showToast('Enlace de la web copiado al portapapeles.');
+    label.textContent = '¡Copiado!';
+    showToast('✓ ¡Link copiado al portapapeles!');
 
     if (copyBtnResetTimer) clearTimeout(copyBtnResetTimer);
     copyBtnResetTimer = setTimeout(() => {
@@ -152,7 +152,7 @@
       icon.style.display = 'block';
       check.style.display = 'none';
       label.textContent = 'Compartir link';
-    }, 2200);
+    }, 2400);
   }
 
   let shareWinnerResetTimer = null;
@@ -171,13 +171,13 @@
     }
 
     const label = document.getElementById('shareWinnerLabel');
-    label.textContent = '¡Link copiado!';
-    showToast(`Enlace de «${game.esName}» copiado al portapapeles.`);
+    label.textContent = '¡Copiado!';
+    showToast(`✓ ¡Link de «${game.esName}» copiado!`);
 
     if (shareWinnerResetTimer) clearTimeout(shareWinnerResetTimer);
     shareWinnerResetTimer = setTimeout(() => {
       label.textContent = 'Copiar link del juego';
-    }, 2200);
+    }, 2400);
   }
 
   // =========================================================================

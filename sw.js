@@ -1,11 +1,11 @@
-const CACHE_NAME = 'ludoteca-cache-v4';
+const CACHE_NAME = 'ludoteca-cache-v5';
 const PRECACHE_URLS = [
   './',
   './index.html',
-  './css/styles.css',
-  './js/default-games.js',
-  './js/storage.js',
-  './js/app.js',
+  './css/styles.css?v=5',
+  './js/default-games.js?v=5',
+  './js/storage.js?v=5',
+  './js/app.js?v=5',
   './data/games.json',
   './manifest.webmanifest',
   './assets/favicon.svg',
@@ -61,9 +61,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first for games.json and HTML so repo updates appear immediately when online,
+  // Network-first for HTML, JS, CSS, and games.json so updates appear immediately when online,
   // falling back to cache seamlessly when offline.
-  if (url.pathname.endsWith('/games.json') || event.request.mode === 'navigate') {
+  const isCodeOrData =
+    event.request.mode === 'navigate' ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.json');
+
+  if (isCodeOrData) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
@@ -73,7 +79,11 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(() => caches.match(event.request).then((res) => res || caches.match('./index.html')))
+        .catch(() =>
+          caches
+            .match(event.request, { ignoreSearch: true })
+            .then((res) => res || caches.match('./index.html'))
+        )
     );
     return;
   }

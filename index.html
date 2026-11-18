@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ludoteca · Selector y Colección de Juegos de Mesa</title>
+  <meta name="description"
+    content="Elige qué juego de mesa llevar hoy a la mesa según cantidad de jugadores, duración y complejidad, o explora la colección completa.">
+  <meta name="theme-color" content="#141210">
+
+  <!-- Open Graph / Compartir en WhatsApp, Telegram y redes -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_AR">
+  <meta property="og:title" content="Ludoteca · Selector de Juegos de Mesa">
+  <meta property="og:description"
+    content="Filtra por jugadores, tiempo y dificultad o sortea el próximo juego de la noche sin repeticiones.">
+  <meta property="og:image" content="./assets/og-cover.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Iconos y PWA -->
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+  <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+
+  <!-- Tipografías Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Evitar parpadeo de tema antes del renderizado -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('ludoteca_theme_v1');
+        if (saved === 'light' || saved === 'dark') {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+  <div class="app-shell">
+    <!-- Cabecera -->
+    <header class="site-header">
+      <div class="brand">
+        <div class="brand-mark">
+          <img src="./assets/icon-192.png" alt="Emblema de Ludoteca" width="44" height="44">
+        </div>
+        <div class="brand-copy">
+          <h1>Ludoteca</h1>
+          <p>Selector inteligente de juegos de mesa</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" id="installPwaBtn" class="icon-btn" hidden title="Instalar aplicación en tu dispositivo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12" />
+            <path d="m7 10 5 5 5-5" />
+            <path d="M5 21h14" />
+          </svg>
+          <span>Instalar App</span>
+        </button>
+
+        <button type="button" id="themeToggleBtn" class="icon-btn" aria-label="Cambiar tema claro u oscuro">
+          <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2" />
+            <path d="M12 20v2" />
+            <path d="m4.93 4.93 1.41 1.41" />
+            <path d="m17.66 17.66 1.41 1.41" />
+            <path d="M2 12h2" />
+            <path d="M20 12h2" />
+            <path d="m6.34 17.66-1.41 1.41" />
+            <path d="m19.07 4.93-1.41 1.41" />
+          </svg>
+          <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display: none;">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+          </svg>
+          <span id="themeBtnLabel">Modo claro</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Barra de navegación principal -->
+    <nav class="nav-bar" aria-label="Vistas de la aplicación">
+      <div class="segmented-tabs" role="tablist">
+        <button type="button" id="tabBtnPicker" class="tab-btn" role="tab" aria-selected="true"
+          aria-controls="viewPicker">
+          <span>🎲 Elegir qué jugar</span>
+        </button>
+        <button type="button" id="tabBtnCollection" class="tab-btn" role="tab" aria-selected="false"
+          aria-controls="viewCollection">
+          <span>📚 Colección</span>
+          <span id="collectionTabCount" class="count-pill">0</span>
+        </button>
+      </div>
+
+      <button type="button" id="openAddGameBtn" class="icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
+        <span>Agregar juego</span>
+      </button>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main>
+      <!-- VISTA 1: SORTEO DE MESA -->
+      <section id="viewPicker" class="view-panel" role="tabpanel" aria-labelledby="tabBtnPicker">
+        <div class="picker-layout">
+          <!-- Panel izquierdo: Filtros de la partida -->
+          <div class="surface-panel">
+            <div class="panel-heading">
+              <h2>Armar la partida</h2>
+              <p>Ajusta cuántos son hoy y el estilo de mesa que buscan.</p>
+            </div>
+
+            <!-- Jugadores -->
+            <div class="control-section">
+              <div class="control-label-row">
+                <label class="control-label" for="playerCountInput">¿Cuántos jugadores somos?</label>
+                <span id="playerRangeHint" class="control-hint">Sin límite de jugadores</span>
+              </div>
+
+              <div class="player-quick-grid" role="group" aria-label="Selección rápida de jugadores">
+                <button type="button" class="chip-btn" data-player-quick="any" aria-pressed="true">Todos</button>
+                <button type="button" class="chip-btn" data-player-quick="1" aria-pressed="false">1</button>
+                <button type="button" class="chip-btn" data-player-quick="2" aria-pressed="false">2</button>
+                <button type="button" class="chip-btn" data-player-quick="3" aria-pressed="false">3</button>
+                <button type="button" class="chip-btn" data-player-quick="4" aria-pressed="false">4</button>
+                <button type="button" class="chip-btn" data-player-quick="5" aria-pressed="false">5</button>
+                <button type="button" class="chip-btn" data-player-quick="6" aria-pressed="false">6</button>
+                <button type="button" class="chip-btn" data-player-quick="7" aria-pressed="false">7</button>
+              </div>
+
+              <div class="stepper-row">
+                <button type="button" id="playerDecrementBtn" class="stepper-btn"
+                  aria-label="Restar un jugador">−</button>
+                <input type="number" id="playerCountInput" class="number-input" min="1" max="50"
+                  placeholder="O escribe otra cantidad (ej. 4)">
+                <button type="button" id="playerIncrementBtn" class="stepper-btn"
+                  aria-label="Sumar un jugador">+</button>
+              </div>
+            </div>
+
+            <!-- Duración -->
+            <div class="control-section">
+              <div class="control-label-row">
+                <span class="control-label">Duración estimada</span>
+              </div>
+              <div class="filter-pills" role="group" aria-label="Filtro de duración">
+                <button type="button" class="pill-option" data-picker-filter="duration" data-value="all"
+                  aria-pressed="true">Cualquiera</button>
+                <button type="button" class="pill-option" data-picker-filter="duration" data-value="short"
+                  aria-pressed="false">Rápido (≤ 45m)</button>
+                <button type="button" class="pill-option" data-picker-filter="duration" data-value="medium"
+                  aria-pressed="false">Medio (45–90m)</button>
+                <button type="button" class="pill-option" data-picker-filter="duration" data-value="long"
+                  aria-pressed="false">Largo (90m+)</button>
+              </div>
+            </div>
+
+            <!-- Complejidad -->
+            <div class="control-section">
+              <div class="control-label-row">
+                <span class="control-label">Complejidad</span>
+              </div>
+              <div class="filter-pills" role="group" aria-label="Filtro de complejidad">
+                <button type="button" class="pill-option" data-picker-filter="complexity" data-value="all"
+                  aria-pressed="true">Todas</button>
+                <button type="button" class="pill-option" data-picker-filter="complexity" data-value="ligero"
+                  aria-pressed="false">Ligero</button>
+                <button type="button" class="pill-option" data-picker-filter="complexity" data-value="medio"
+                  aria-pressed="false">Medio</button>
+                <button type="button" class="pill-option" data-picker-filter="complexity" data-value="experto"
+                  aria-pressed="false">Experto</button>
+              </div>
+            </div>
+
+            <!-- Modo -->
+            <div class="control-section">
+              <div class="control-label-row">
+                <span class="control-label">Dinámica de mesa</span>
+              </div>
+              <div class="filter-pills" role="group" aria-label="Filtro de modo de juego">
+                <button type="button" class="pill-option" data-picker-filter="mode" data-value="all"
+                  aria-pressed="true">Todos</button>
+                <button type="button" class="pill-option" data-picker-filter="mode" data-value="competitivo"
+                  aria-pressed="false">Competitivo</button>
+                <button type="button" class="pill-option" data-picker-filter="mode" data-value="cooperativo"
+                  aria-pressed="false">Cooperativo</button>
+              </div>
+            </div>
+
+            <!-- Pie de acción -->
+            <div class="picker-cta-box">
+              <div class="pool-status">
+                <span id="poolStatusText">Cargando colección…</span>
+                <button type="button" id="resetDiscardsBtn" class="text-link-btn" hidden>Restablecer descartes</button>
+              </div>
+
+              <button type="button" id="rollGameBtn" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"
+                  stroke-linejoin="round" aria-hidden="true">
+                  <rect width="18" height="18" x="3" y="3" rx="3" ry="3" />
+                  <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" />
+                  <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" />
+                  <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+                  <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" />
+                  <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" />
+                </svg>
+                <span>Elegir juego al azar</span>
+              </button>
+
+              <div id="pickerError" class="error-banner" role="alert" hidden></div>
+            </div>
+          </div>
+
+          <!-- Panel derecho: Escenario del resultado -->
+          <div class="surface-panel stage-panel" aria-live="polite">
+            <!-- Estado inicial -->
+            <div id="stageEmpty" class="stage-empty">
+              <div class="stage-emblem" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="m12 2 8 4.5v11L12 22l-8-4.5v-11L12 2Z" />
+                  <path d="m12 22 8-11-8-9-8 9 8 11Z" />
+                  <path d="M4 6.5h16" />
+                </svg>
+              </div>
+              <h3>¿Qué sale a la mesa hoy?</h3>
+              <p id="stageEmptySummary">Selecciona cuántos jugadores son y presiona «Elegir juego al azar» para decidir
+                en segundos.</p>
+            </div>
+
+            <!-- Estado barajando -->
+            <div id="stageRolling" class="stage-rolling" hidden>
+              <p class="rolling-kicker">Barajando opciones compatibles…</p>
+              <div id="rollingCandidateTitle" class="rolling-title">Ludoteca</div>
+            </div>
+
+            <!-- Juego ganador -->
+            <div id="stageWinner" class="winner-view" hidden>
+              <div class="winner-top">
+                <div>
+                  <p class="winner-kicker">Sugerencia para hoy</p>
+                  <h2 id="winnerTitle" class="winner-title">Nombre del Juego</h2>
+                  <p id="winnerSubtitle" class="winner-subtitle" hidden>Original Title</p>
+                </div>
+                <span id="winnerComplexity" class="complexity-badge complexity-medio">Medio</span>
+              </div>
+
+              <div class="meta-strip">
+                <span class="meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                  <span id="winnerPlayers">2–4 jug.</span>
+                </span>
+
+                <span class="meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  <span id="winnerTime">45–60 min</span>
+                </span>
+
+                <span class="meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                  <span id="winnerMode">Competitivo</span>
+                </span>
+              </div>
+
+              <p id="winnerDescription" class="winner-description"></p>
+
+              <div id="winnerTags" class="tag-list"></div>
+
+              <div class="external-links-grid">
+                <a id="winnerLinkBgg" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+                  <span>Ficha en BGG ↗</span>
+                </a>
+                <a id="winnerLinkImages" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">
+                  <span>Ver fotos ↗</span>
+                </a>
+                <a id="winnerLinkYoutube" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">
+                  <span>Cómo jugar ↗</span>
+                </a>
+              </div>
+
+              <div class="winner-reroll-bar">
+                <span id="rerollRemainingInfo" class="control-hint"></span>
+                <button type="button" id="rerollSkipBtn" class="btn btn-secondary btn-sm">
+                  Probar otro (descartar este)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISTA 2: CATÁLOGO Y GESTIÓN DE LA COLECCIÓN -->
+      <section id="viewCollection" class="view-panel" role="tabpanel" aria-labelledby="tabBtnCollection" hidden>
+        <div class="collection-toolbar">
+          <div class="toolbar-top">
+            <div class="search-field">
+              <label for="catalogSearchInput" class="sr-only">Buscar por nombre o etiqueta</label>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input type="search" id="catalogSearchInput" class="text-input"
+                placeholder="Buscar por título, nombre en inglés o mecánica…">
+            </div>
+
+            <div>
+              <label for="catalogPlayersFilter" class="sr-only">Filtrar por jugadores</label>
+              <input type="number" id="catalogPlayersFilter" class="text-input" min="1" max="50"
+                placeholder="Jugadores (ej. 4)">
+            </div>
+
+            <div>
+              <label for="catalogDurationFilter" class="sr-only">Filtrar por duración</label>
+              <select id="catalogDurationFilter" class="select-input">
+                <option value="all">Cualquier duración</option>
+                <option value="short">Rápidos (≤ 45 min)</option>
+                <option value="medium">Medios (45–90 min)</option>
+                <option value="long">Largos (90+ min)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="catalogComplexityFilter" class="sr-only">Filtrar por complejidad</label>
+              <select id="catalogComplexityFilter" class="select-input">
+                <option value="all">Toda complejidad</option>
+                <option value="ligero">Ligero</option>
+                <option value="medio">Medio</option>
+                <option value="experto">Experto</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toolbar-bottom">
+            <span id="catalogResultsSummary" class="results-summary">Mostrando colección…</span>
+
+            <div class="toolbar-actions">
+              <label for="catalogSortSelect" class="sr-only">Ordenar por</label>
+              <select id="catalogSortSelect" class="select-input" style="width: auto;">
+                <option value="name-asc">Orden: Nombre (A–Z)</option>
+                <option value="time-asc">Duración: menor a mayor</option>
+                <option value="time-desc">Duración: mayor a menor</option>
+                <option value="complexity-asc">Complejidad: ligero a experto</option>
+                <option value="complexity-desc">Complejidad: experto a ligero</option>
+              </select>
+
+              <button type="button" id="exportJsonBtn" class="icon-btn"
+                title="Descargar colección completa como games.json">
+                <span>Exportar JSON</span>
+              </button>
+
+              <button type="button" id="importJsonBtn" class="icon-btn" title="Importar archivo games.json">
+                <span>Importar JSON</span>
+              </button>
+              <input type="file" id="importJsonInput" accept="application/json,.json" hidden>
+
+              <button type="button" id="restoreDefaultCollectionBtn" class="icon-btn" hidden
+                title="Volver a los juegos originales del repositorio">
+                <span>↺ Restaurar original</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="catalogGrid" class="games-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Pie de página -->
+  <footer class="site-footer">
+    <span>Ludoteca · <strong id="footerTotalCount">0</strong> juegos en colección</span>
+    <span>Funciona sin conexión · Listo para GitHub Pages</span>
+  </footer>
+
+  <!-- MODAL (<dialog>) PARA AGREGAR O EDITAR JUEGO -->
+  <dialog id="gameFormDialog" class="app-dialog" aria-labelledby="gameDialogTitle">
+    <form id="gameForm" class="dialog-inner">
+      <div class="dialog-header">
+        <h2 id="gameDialogTitle">Agregar nuevo juego</h2>
+        <button type="button" id="closeGameDialogBtn" class="icon-btn" aria-label="Cerrar ventana">✕</button>
+      </div>
+
+      <div class="dialog-body">
+        <input type="hidden" id="formGameId">
+
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label for="formEsName">Nombre en español *</label>
+            <input type="text" id="formEsName" class="text-input" required placeholder="Ej. La Catedral Roja">
+          </div>
+          <div class="field-group">
+            <label for="formOrigName">Nombre original (para BGG)</label>
+            <input type="text" id="formOrigName" class="text-input" placeholder="Ej. The Red Cathedral">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label for="formMinPlayers">Jugadores mínimos *</label>
+            <input type="number" id="formMinPlayers" class="text-input" min="1" max="50" required value="2">
+          </div>
+          <div class="field-group">
+            <label for="formMaxPlayers">Jugadores máximos *</label>
+            <input type="number" id="formMaxPlayers" class="text-input" min="1" max="50" required value="4">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label for="formMinTime">Duración mínima (min) *</label>
+            <input type="number" id="formMinTime" class="text-input" min="5" max="600" step="5" required value="30">
+          </div>
+          <div class="field-group">
+            <label for="formMaxTime">Duración máxima (min) *</label>
+            <input type="number" id="formMaxTime" class="text-input" min="5" max="600" step="5" required value="60">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label for="formComplexity">Complejidad</label>
+            <select id="formComplexity" class="select-input">
+              <option value="ligero">Ligero</option>
+              <option value="medio" selected>Medio</option>
+              <option value="experto">Experto</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="formMode">Modo de juego</label>
+            <select id="formMode" class="select-input">
+              <option value="competitivo" selected>Competitivo</option>
+              <option value="cooperativo">Cooperativo</option>
+              <option value="ambos">Cooperativo y Competitivo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="formTags">Etiquetas (separadas por coma)</label>
+          <input type="text" id="formTags" class="text-input" placeholder="Ej. Eurogame, Dados, Recursos">
+        </div>
+
+        <div class="field-group">
+          <label for="formDescription">Descripción breve</label>
+          <textarea id="formDescription" class="textarea-input"
+            placeholder="De qué trata o por qué destaca en la mesa…"></textarea>
+        </div>
+      </div>
+
+      <div class="dialog-footer">
+        <button type="button" id="deleteGameBtn" class="btn btn-danger btn-sm" style="margin-right: auto;" hidden>
+          Eliminar
+        </button>
+        <button type="button" id="cancelGameDialogBtn" class="btn btn-ghost btn-sm">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-sm">Guardar juego</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Región de notificaciones breves -->
+  <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+
+  <script src="./js/default-games.js"></script>
+  <script src="./js/storage.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+
+</html>

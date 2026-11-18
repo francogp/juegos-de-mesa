@@ -423,6 +423,11 @@
     const chosen = pool[Math.floor(Math.random() * pool.length)];
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    const stagePanel = document.querySelector('.stage-panel');
+    if (stagePanel && window.innerWidth <= 860) {
+      stagePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     if (prefersReducedMotion || pool.length === 1) {
       state.picker.selectedGame = chosen;
       updatePickerPoolUI();
@@ -435,19 +440,12 @@
     renderStage();
 
     const rollingTitleEl = document.getElementById('rollingCandidateTitle');
-    const rollingCoverEl = document.getElementById('rollingCandidateCover');
     let ticks = 0;
     const totalTicks = 9;
 
     const timer = setInterval(() => {
       const sample = allCompatible[Math.floor(Math.random() * allCompatible.length)];
       rollingTitleEl.textContent = sample.esName;
-      if (sample.coverUrl) {
-        rollingCoverEl.src = sample.coverUrl;
-        rollingCoverEl.hidden = false;
-      } else {
-        rollingCoverEl.hidden = true;
-      }
       ticks += 1;
       if (ticks >= totalTicks) {
         clearInterval(timer);
@@ -456,7 +454,7 @@
         updatePickerPoolUI();
         renderStage();
       }
-    }, 65);
+    }, 60);
   }
 
   // =========================================================================

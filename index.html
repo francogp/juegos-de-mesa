@@ -42,7 +42,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="./css/styles.css?v=8">
+  <link rel="stylesheet" href="./css/styles.css?v=9">
 </head>
 
 <body>
@@ -356,15 +356,20 @@
                 <a id="winnerLinkBgg" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
                   <span>Ficha en BGG ↗</span>
                 </a>
-                <button type="button" id="shareWinnerBtn" class="btn btn-secondary btn-sm" title="Copiar enlace directo a este juego">
-                  <span id="shareWinnerLabel">Copiar link del juego</span>
-                </button>
+                <a id="winnerLinkSleeves" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm"
+                  title="Ver tamaño y cantidad de fundas (sleeves) en BoardGameGeek">
+                  <span>Sleeves ↗</span>
+                </a>
                 <a id="winnerLinkImages" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">
                   <span>Ver fotos ↗</span>
                 </a>
                 <a id="winnerLinkYoutube" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">
                   <span>Cómo jugar ↗</span>
                 </a>
+                <button type="button" id="shareWinnerBtn" class="btn btn-secondary btn-sm external-link-full"
+                  title="Copiar enlace directo a este juego">
+                  <span id="shareWinnerLabel">Copiar link del juego</span>
+                </button>
               </div>
 
               <div class="winner-reroll-bar">
@@ -560,9 +565,9 @@
   <!-- Región de notificaciones breves -->
   <div id="toastRegion" class="toast-region" aria-live="polite"></div>
 
-  <script src="./js/default-games.js?v=8"></script>
-  <script src="./js/storage.js?v=8"></script>
-  <script src="./js/app.js?v=8"></script>
+  <script src="./js/default-games.js?v=9"></script>
+  <script src="./js/storage.js?v=9"></script>
+  <script src="./js/app.js?v=9"></script>
 </body>
 
 </html>

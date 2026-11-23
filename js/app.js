@@ -73,6 +73,22 @@
       : `${game.minTime}–${game.maxTime} min`;
   }
 
+  function buildBggSleevesUrl(bggUrl) {
+    if (!bggUrl) return '';
+    try {
+      const url = new URL(bggUrl);
+      if (!/(^|\.)boardgamegeek\.com$/i.test(url.hostname)) return '';
+      if (!/^\/boardgame\/\d+/i.test(url.pathname)) return '';
+      const cleanPath = url.pathname.replace(/\/+$/, '').replace(/\/sleeves$/i, '');
+      url.pathname = `${cleanPath}/sleeves`;
+      url.search = '';
+      url.hash = '';
+      return url.toString();
+    } catch {
+      return '';
+    }
+  }
+
   function buildExternalLinks(game) {
     const safeOrig = encodeURIComponent(game.originalName);
     const safeEs = encodeURIComponent(game.esName);
@@ -80,6 +96,7 @@
       bgg:
         game.bggUrl ||
         `https://boardgamegeek.com/geeksearch.php?action=search&objecttype=boardgame&q=${safeOrig}`,
+      sleeves: buildBggSleevesUrl(game.bggUrl),
       images: `https://www.google.com/search?tbm=isch&q=${safeOrig}%20board%20game`,
       youtube: `https://www.youtube.com/results?search_query=como+jugar+${safeEs}+juego+de+mesa`
     };
@@ -421,6 +438,11 @@
     });
 
     document.getElementById('winnerLinkBgg').href = links.bgg;
+    const sleevesLinkEl = document.getElementById('winnerLinkSleeves');
+    if (sleevesLinkEl) {
+      sleevesLinkEl.href = links.sleeves || '#';
+      sleevesLinkEl.hidden = !links.sleeves;
+    }
     document.getElementById('winnerLinkImages').href = links.images;
     document.getElementById('winnerLinkYoutube').href = links.youtube;
 
@@ -688,6 +710,17 @@
       bggLink.rel = 'noopener noreferrer';
       bggLink.textContent = 'BGG ↗';
       miniLinks.appendChild(bggLink);
+
+      if (links.sleeves) {
+        const sleevesLink = document.createElement('a');
+        sleevesLink.className = 'mini-btn';
+        sleevesLink.href = links.sleeves;
+        sleevesLink.target = '_blank';
+        sleevesLink.rel = 'noopener noreferrer';
+        sleevesLink.title = 'Ver tamaño y cantidad de fundas (sleeves) en BGG';
+        sleevesLink.textContent = 'Sleeves ↗';
+        miniLinks.appendChild(sleevesLink);
+      }
 
       // Solo permitir Editar y Quitar dentro de Mi Ludoteca personalizada
       if (isCustom) {
